@@ -15,18 +15,13 @@
 
 
 
-<meta name="description" content="&amp;emsp;&amp;emsp;提到Android的缓存策略任何一个Android开发人员都能随口说出LruCache，利用最新最少使用(Least Recently Used)的原则进行缓存,可LRU到底是怎么实现的呢？">
-<meta name="keywords" content="LruCahe,缓存">
-<meta property="og:type" content="article">
-<meta property="og:title" content="深入剖析LruCache">
-<meta property="og:url" content="http://yoursite.com/2018/03/02/2018-03-02-android-LruCache/index.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="夏洛克丶Aza">
+<meta property="og:url" content="http://yoursite.com/tags/LruCache/index.html">
 <meta property="og:site_name" content="夏洛克丶Aza">
-<meta property="og:description" content="&amp;emsp;&amp;emsp;提到Android的缓存策略任何一个Android开发人员都能随口说出LruCache，利用最新最少使用(Least Recently Used)的原则进行缓存,可LRU到底是怎么实现的呢？">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-02T06:22:41.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="深入剖析LruCache">
-<meta name="twitter:description" content="&amp;emsp;&amp;emsp;提到Android的缓存策略任何一个Android开发人员都能随口说出LruCache，利用最新最少使用(Least Recently Used)的原则进行缓存,可LRU到底是怎么实现的呢？">
+<meta name="twitter:title" content="夏洛克丶Aza">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -58,7 +53,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>深入剖析LruCache | 夏洛克丶Aza</title>
+<title>Tag: LruCache | 夏洛克丶Aza</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -68,9 +63,9 @@
         fancybox: true,
         animate: true,
         isHome: false,
-        isPost: true,
+        isPost: false,
         isArchive: false,
-        isTag: false,
+        isTag: true,
         isCategory: false,
         fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
         scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
@@ -192,7 +187,7 @@
                 
                 <section class="switch-part switch-part2">
                     <div class="widget tagcloud" id="js-tagcloud">
-                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crash/">Crash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashMap/">HashMap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LruCahe/">LruCahe</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/缓存/">缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/适配/">适配</a></li></ul>
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crash/">Crash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashMap/">HashMap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LruCache/">LruCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/缓存/">缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/适配/">适配</a></li></ul>
                     </div>
                 </section>
                 
@@ -267,171 +262,56 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-2018-03-02-android-LruCache" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap">
   
-    <div class="article-meta">
-      <a href="/2018/03/02/2018-03-02-android-LruCache/" class="article-date">
-      <time datetime="2018-03-02T03:45:07.000Z" itemprop="datePublished">2018-03-02</time>
+  
+    
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2016" class="archive-year">2016</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+          <div class="article-meta">
+              <a href="/2016/11/05/2016-11-05-LruCache/" class="archive-article-date">
+      <time datetime="2016-11-05T08:59:37.000Z" itemprop="datePublished">11-05</time>
 </a>
 
 
-    </div>
+        </div>
+         
   
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      深入剖析LruCache
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/2016/11/05/2016-11-05-LruCache/">深入剖析LruCache</a>
     </h1>
   
 
-      </header>
-      
-      <div class="article-info article-info-post">
-        
-
-        
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LruCahe/">LruCahe</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/缓存/">缓存</a></li></ul>
-    </div>
-
-        <div class="clearfix"></div>
-      </div>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
+        <div class="article-info info-on-archive">
           
-        <p>&emsp;&emsp;提到Android的<code>缓存策略</code>任何一个Android开发人员都能随口说出<code>LruCache</code>，利用<code>最新最少使用(Least Recently Used)</code>的原则进行缓存,可<code>LRU</code>到底是怎么实现的呢？</p>
-<a id="more"></a>
-      
+
+          
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LruCache/">LruCache</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/缓存/">缓存</a></li></ul>
     </div>
-    
+
+        </div>
+        <div class="clearfix"></div>
+    </header>
   </div>
-  
-    
-    <div class="copyright">
-        <p><span>本文标题:</span><a href="/2018/03/02/2018-03-02-android-LruCache/">深入剖析LruCache</a></p>
-        <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
-        <p><span>发布时间:</span>2018-03-02, 11:45:07</p>
-        <p><span>最后更新:</span>2018-03-02, 14:22:41</p>
-        <p>
-            <span>原始链接:</span><a class="post-url" href="/2018/03/02/2018-03-02-android-LruCache/" title="深入剖析LruCache">http://yoursite.com/2018/03/02/2018-03-02-android-LruCache/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2018/03/02/2018-03-02-android-LruCache/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
-            <script> var clipboard = new Clipboard('.copy-path'); </script>
-        </p>
-        <p>
-            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
-        </p>
-    </div>
-
-
-
-    <nav id="article-nav">
-        
-        
-            <div id="article-nav-older" class="article-nav-title">
-                <a href="/2018/03/02/2018-03-02-android-8/">
-                    Android8.0适配问题
-                </a>
-            </div>
-        
-    </nav>
-
-  
 </article>
-
-    <div id="toc" class="toc-article">
-        <strong class="toc-title">文章目录</strong>
-        
-            
-        
-    </div>
-    <style>
-        .left-col .switch-btn,
-        .left-col .switch-area {
-            display: none;
-        }
-        .toc-level-3 i,
-        .toc-level-3 ol {
-            display: none !important;
-        }
-    </style>
-
-    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
-
-    <script>
-        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
-    </script>
-
-
+  
+  
+    </div></section>
+  
 
     
-<div class="share">
-    
 
-    
-        <div class="addthis_sharing_toolbox"></div>
-    
-</div>
-
-
-
-
-
-
-
-    
-      <div class="duoshuo" id="comments">
-    <div id="comment-box" ></div>
-    <div class="ds-thread" id="ds-thread" data-thread-key="2018/03/02/2018-03-02-android-LruCache/" data-title="深入剖析LruCache" data-url="http://yoursite.com/2018/03/02/2018-03-02-android-LruCache/"></div>
-    <script>
-        var duoshuoQuery = {short_name:""};
-        var loadComment = function(){
-            var d = document, s = d.createElement('script');
-            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-            s.async = true; s.charset = 'UTF-8';
-            (d.head || d.body).appendChild(s);
-        }
-
-        
-    </script>
-    
-    <script> loadComment(); </script>
-
-</div>
-    
-
-
-
-
-    <div class="scroll" id="post-nav-button">
-        
-            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
-        
-
-        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
-
-        
-            <a href="/2018/03/02/2018-03-02-android-8/" title="下一篇: Android8.0适配问题">
-                <i class="fa fa-angle-right"></i>
-            </a>
-        
-    </div>
-
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/02/2018-03-02-android-LruCache/">深入剖析LruCache</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/02/2018-03-02-android-8/">Android8.0适配问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/2018-03-01-android-crash/">避免android Crash崩溃闪屏现象的解决方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/2016-11-03-java-linkedhashmap/">LinkedHashMap原理分析</a></li></ul>
-
-
-
-
-    <script>
-        
-    </script>
 </div>
       <footer id="footer">
     <div class="outer">
