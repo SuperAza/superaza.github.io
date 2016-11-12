@@ -29,7 +29,7 @@
 <meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37633316-cb3bfba6-2c2c-11e8-9d3c-41dea0e65731.jpg">
 <meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37595213-ea3f6eae-2bb2-11e8-98c4-1d6d4daee108.jpg">
 <meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37634549-fd6b6666-2c31-11e8-85d4-69038faf0b1e.jpg">
-<meta property="og:updated_time" content="2016-11-08T14:05:59.672Z">
+<meta property="og:updated_time" content="2016-11-12T13:44:27.438Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java容器之队列Qeque">
 <meta name="twitter:description" content="&amp;emsp;&amp;emsp;队列是一种数据结构，遵循FIFO(先进先出)原则的一种数据结构，简单的讲先放到队列里的元素，先出队列，跟现实生活中的排队一样，队列的使用非常广泛和灵活，详细如下：">
@@ -319,7 +319,7 @@
       
           
         <p>&emsp;&emsp;队列是一种数据结构，遵循<code>FIFO</code>(先进先出)原则的一种数据结构，简单的讲先放到队列里的元素，先出队列，跟现实生活中的排队一样，队列的使用非常广泛和灵活，详细如下：<br><a id="more"></a></p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>&emsp;&emsp;队列是一种特殊的<code>线性表</code>，特殊之处在于它只允许在表的前端（<code>front</code>）进行删除操作，而在表的后端（<code>rear</code>）进行插入操作，和<code>栈</code>(<a href="">Java容器之栈Stack</a>)一样，队列是一种操作受限制的线性表。进行插入操作的端称为队尾，进行删除操作的端称为队头。队列中没有元素时，称为空队列。 </p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>&emsp;&emsp;队列是一种特殊的<code>线性表</code>，特殊之处在于它只允许在表的前端（<code>front</code>）进行删除操作，而在表的后端（<code>rear</code>）进行插入操作，和<code>栈</code>(<a href="http://www.sherlockaza.com/2016/11/12/2016-11-10-java-stack/">Java容器之栈Stack</a>)一样，队列是一种操作受限制的线性表。进行插入操作的端称为队尾，进行删除操作的端称为队头。队列中没有元素时，称为空队列。 </p>
 <h3 id="顺序队列-单队列"><a href="#顺序队列-单队列" class="headerlink" title="顺序队列(单队列)"></a>顺序队列(单队列)</h3><p>&emsp;&emsp;建立顺序队列结构必须为其静态分配或动态申请一片连续的存储空间，并设置两个指针进行管理。一个是队头指针<code>front</code>，它指向队头元素；另一个是队尾指针<code>rear</code>，它指向下一个入队元素的存储位置，如图所示<br><img src="https://user-images.githubusercontent.com/30682550/37632070-6462c55e-2c27-11e8-886a-3f3c72c52c55.jpg" width="50%" height="50%"><br>每次在队尾插入一个元素是，<code>rear</code>增<code>1</code>；每次在队头删除一个元素时，<code>front</code>增<code>1</code>。随着插入和删除操作的进行，队列元素的个数不断变化，队列所占的存储空间也在为队列结构所分配的连续空间中移动。当<code>front=rear</code>时，队列中没有任何元素，称为<code>空队列</code>。当rear增加到指向分配的连续空间之外时，队列无法再插入新元素，但这时往往还有大量可用空间未被占用，这些空间是已经出队的队列元素曾经占用过得存储单元。  </p>
 <blockquote>
 <p>顺序队列中的溢出现象：  </p>
@@ -363,7 +363,7 @@
         <p><span>本文标题:</span><a href="/2016/11/08/2016-11-08-java-queue/">Java容器之队列Qeque</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
         <p><span>发布时间:</span>2016-11-08, 18:33:42</p>
-        <p><span>最后更新:</span>2016-11-08, 22:05:59</p>
+        <p><span>最后更新:</span>2016-11-12, 21:44:27</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2016/11/08/2016-11-08-java-queue/" title="Java容器之队列Qeque">http://www.sherlockaza.com/2016/11/08/2016-11-08-java-queue/</a>
             <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2016/11/08/2016-11-08-java-queue/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
