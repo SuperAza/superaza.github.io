@@ -15,18 +15,20 @@
 
 
 
-<meta name="description" content="&amp;emsp;&amp;emsp;前段时间项目新版本上线，可算松了一口气，可TMD后台bug统计8.0崩溃率100%，你相信嘛？100%啊， 我当时懵逼了！当看完日志以后，心中万条草泥马奔腾！又是该死的适配问题！">
-<meta name="keywords" content="Android,适配">
+<meta name="description" content="&amp;emsp;&amp;emsp;日常开发中几乎所有的程序猿（媛）们都知道HTTPS是用来客户端和服务器进行的一种安全连接，可以有效的保证内容信息安全，防止被抓包，那怎么保证信息安全的呢？很多人又会说加密，不得不承认说的没错，是利用加密方式进行的非明文传输，但是最后的问题来了，这怎么进行加密解密的呢？真正了解原理的人就少了很多，下面的内容就是为了丰(用)富(来)你(装)的(比)知识面准备的！">
+<meta name="keywords" content="Android,https,加密">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Android8.0适配问题">
-<meta property="og:url" content="http://yoursite.com/2018/03/02/2018-03-02-android-8/index.html">
+<meta property="og:title" content="HTTPS详解">
+<meta property="og:url" content="http://yoursite.com/2017/03/02/2017-03-02-android-https/index.html">
 <meta property="og:site_name" content="夏洛克丶Aza">
-<meta property="og:description" content="&amp;emsp;&amp;emsp;前段时间项目新版本上线，可算松了一口气，可TMD后台bug统计8.0崩溃率100%，你相信嘛？100%啊， 我当时懵逼了！当看完日志以后，心中万条草泥马奔腾！又是该死的适配问题！">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;日常开发中几乎所有的程序猿（媛）们都知道HTTPS是用来客户端和服务器进行的一种安全连接，可以有效的保证内容信息安全，防止被抓包，那怎么保证信息安全的呢？很多人又会说加密，不得不承认说的没错，是利用加密方式进行的非明文传输，但是最后的问题来了，这怎么进行加密解密的呢？真正了解原理的人就少了很多，下面的内容就是为了丰(用)富(来)你(装)的(比)知识面准备的！">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-02T02:28:51.000Z">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37188666-47a6dd46-238b-11e8-9f8a-6c09ae22527c.png">
+<meta property="og:updated_time" content="2017-03-03T03:25:20.113Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Android8.0适配问题">
-<meta name="twitter:description" content="&amp;emsp;&amp;emsp;前段时间项目新版本上线，可算松了一口气，可TMD后台bug统计8.0崩溃率100%，你相信嘛？100%啊， 我当时懵逼了！当看完日志以后，心中万条草泥马奔腾！又是该死的适配问题！">
+<meta name="twitter:title" content="HTTPS详解">
+<meta name="twitter:description" content="&amp;emsp;&amp;emsp;日常开发中几乎所有的程序猿（媛）们都知道HTTPS是用来客户端和服务器进行的一种安全连接，可以有效的保证内容信息安全，防止被抓包，那怎么保证信息安全的呢？很多人又会说加密，不得不承认说的没错，是利用加密方式进行的非明文传输，但是最后的问题来了，这怎么进行加密解密的呢？真正了解原理的人就少了很多，下面的内容就是为了丰(用)富(来)你(装)的(比)知识面准备的！">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/30682550/37188666-47a6dd46-238b-11e8-9f8a-6c09ae22527c.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -58,7 +60,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>Android8.0适配问题 | 夏洛克丶Aza</title>
+<title>HTTPS详解 | 夏洛克丶Aza</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -267,11 +269,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-2018-03-02-android-8" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-2017-03-02-android-https" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2018/03/02/2018-03-02-android-8/" class="article-date">
-      <time datetime="2018-03-02T01:59:05.000Z" itemprop="datePublished">2018-03-02</time>
+      <a href="/2017/03/02/2017-03-02-android-https/" class="article-date">
+      <time datetime="2017-03-02T02:05:09.000Z" itemprop="datePublished">2017-03-02</time>
 </a>
 
 
@@ -286,7 +288,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Android8.0适配问题
+      HTTPS详解
     </h1>
   
 
@@ -297,7 +299,7 @@
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/适配/">适配</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/">Android</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/https/">https</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/加密/">加密</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -307,12 +309,57 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>&emsp;&emsp;前段时间项目新版本上线，可算松了一口气，可TMD后台bug统计<code>8.0</code>崩溃率<code>100%</code>，你相信嘛？100%啊， 我当时懵逼了！当看完日志以后，心中万条草泥马奔腾！又是该死的<code>适配问题</code>！<br><a id="more"></a></p>
-<h2 id="Log日志信息"><a href="#Log日志信息" class="headerlink" title="Log日志信息"></a>Log日志信息</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Caused by: java.lang.IllegalStateException: Only fullscreen opaque activities can request orientation</span><br></pre></td></tr></table></figure>
-<p>&emsp;&emsp;日志显示的错误信息是<code>Only fullscreen opaque activities can request orientation</code>，直接翻译过来的意思就是只有不透明的activity才能设置方向，8.0以前并没有这样的错误提示。</p>
-<p>&emsp;&emsp;网上搜了搜，发现不是个例，这个问题出现在android8.0以上。原因是我们给Activity同时设置了 <code>android:screenOrientation=&quot;&quot;</code> 和 <code>&lt;item name=&quot;android:windowIsTranslucent&quot;&gt;true&lt;/item&gt;</code>。</p>
-<p>解决方法很简单：<br>1.找到你设置透明的Activity，然后在他的theme中将<code>android:windowIsTranslucent</code>改为<code>false</code><br><code>&lt;item name=&quot;android:windowIsTranslucent&quot;&gt;false&lt;/item&gt;</code></p>
-<p>2.再加入<code>&lt;item name=&quot;android:windowDisablePreview&quot;&gt;true&lt;/item&gt;</code>就搞定了。</p>
+        <p>&emsp;&emsp;日常开发中几乎所有的程序猿（媛）们都知道<code>HTTPS</code>是用来客户端和服务器进行的一种安全连接，可以有效的保证内容信息安全，防止被抓包，那怎么保证信息安全的呢？很多人又会说加密，不得不承认说的没错，是利用<code>加密</code>方式进行的<code>非明文</code>传输，但是最后的问题来了，这怎么进行加密解密的呢？真正了解原理的人就少了很多，下面的内容就是为了丰<code>(用)</code>富<code>(来)</code>你<code>(装)</code>的<code>(比)</code>知识面准备的！<br><a id="more"></a></p>
+<h2 id="什么是HTTPS"><a href="#什么是HTTPS" class="headerlink" title="什么是HTTPS"></a>什么是HTTPS</h2><p>&emsp;&emsp;HTTPS可以理解为<code>HTTPS = HTTP+SSL/TLS</code>,HTTPS的核心基础就是SSL，只要弄懂了SSL就知道HTTPS怎么工作的了。  </p>
+<h2 id="加密算法"><a href="#加密算法" class="headerlink" title="加密算法"></a>加密算法</h2><p>&emsp;&emsp;下面请允许我嘚<code>(装)</code>瑟<code>(比)</code>一下公元前400年，古希腊人就发明了置换密码；在第二次世界大战期间，德国军方启用了“恩尼格玛”密码机，所以密码学在社会发展中有着广泛的用途。嘚(装)瑟(比)结束。<br>&emsp;&emsp;加密算法基本上可以分为两种类型:</p>
+<blockquote>
+<p>对称加密</p>
+</blockquote>
+<p>&emsp;&emsp;什么是对称加密呢？简单的理解就是双方都共同拥有一个密钥，然后通过这个密钥进行加密和解密，这种加密方式优点就是<code>速度快</code>，但是<code>安全性不高</code>，不能说不高，只是没有非对称加密高。<br>举个栗子：  </p>
+<p>我们大家都看过谍战片吧，尤其是抗日战争时期的谍战片简直就是霸屏了，什么手撕鬼子，手榴弹炸飞机啊什么的各种洗脑！其中有些情节一定很熟悉，那就是情报！地下情报员和情报处之间进行情报交流的时候，往往都不是通过非明文传输信息，他们有一个共同的密钥就是一本书，什么三国演义啊，论语啊，葵花宝典啊，通过这本书（前提是这本书是一样的，盗版就废了）双方就能获得相同的信息，如果过程中被别人窃取了情报，如果不知道葵花宝典这本密钥的话，他是不会得到真正的信息。<br>这就是所谓的对称加密和解密，但是安全性不是很高，你想想，如果葵花宝典这本书泄漏给了小鬼子，小鬼子拿到咱们的情报，是不是后果不堪设想了！</p>
+<blockquote>
+<p>非对称加密  </p>
+</blockquote>
+<p>&emsp;&emsp;非对称加密有两个重要的角色，<code>公钥</code>和<code>私钥</code>，一般遵循这样一个原则，<code>公钥加密</code>，<code>私钥解密</code>。<br>举个栗子：<br>A和B两家公司，需要交流重要信息（比如交易金额发起和交易结果通知）。A需要保证自己的发起金额准确，必须进行信息加密，B公司是实际金额的操作者（帮A公司代收代付），A使用B给的公钥加密数据，B使用自己的私钥解密执行金额交易。这样只有和B公司合作的并持有B公司发放的公钥才能发起交易。反之，A公司也只识别给了公钥的B公司加密的数据。这样就是最基本的非对称加密的用法。但是有一个新的问题是，假如同样持有B公司公钥的C公司模拟或从中修改了A公司发起数据并加密传给了B，B不知道是C伪造的执行了操作就会给A带来经济损失。所以新的问题出现了：身份认证和信息完整性必须验证！  </p>
+<h2 id="CA证书"><a href="#CA证书" class="headerlink" title="CA证书"></a>CA证书</h2><p>&emsp;&emsp;为了解决上边说到防止被劫持问题，必须进行必要的身份认证和信息完整性认证，这就说到了CA证书，CA证书其实就是数字证书，是有权威机构颁发的，浏览器和Android手机都内置了几百个公认的证书，有些项目需要自己申请自签名的证书，用于项目使用，但是不管什么证书，都需要CA权威机构颁发的，里边包括以下内容：</p>
+<ol>
+<li>证书的发布机构</li>
+<li>证书的有效期</li>
+<li>证书的所有者</li>
+<li>证书的数字签名和签名的Hash算法</li>
+<li>证书的公钥</li>
+<li>……</li>
+</ol>
+<p>先说下客户端校验CA证书的方法</p>
+<h3 id="校验方法"><a href="#校验方法" class="headerlink" title="校验方法"></a>校验方法</h3><ol>
+<li>首先客户端读取证书中的证书所有者、有效期等信息进行一一校验</li>
+<li>客户端开始查找操作系统中已内置的受信任的证书发布机构CA，与服务器发来的证书中的颁发者CA比对，用于校验证书是否为合法机构颁发 </li>
+<li>如果找不到，客户端就会报错，说明服务器发来的证书是不可信任的。</li>
+<li>如果找到，那么客户端就会从操作系统中取出  颁发者CA  的公钥，然后对服务器发来的证书里面的签名进行解密得到hash-a。</li>
+<li>客户端使用相同的hash算法计算出服务器发来的证书的hash值hash-b，将这个计算的hash值与证书中签名做对比。</li>
+<li>对比结果一致，则证明服务器发来的证书合法，没有被冒充</li>
+</ol>
+<p>知道以上内容，我们就来详细的看一下解决身份认证和信息完整性验证的具体过程，也称为HTTPS的中SSL握手建立过程,如下图所示：</p>
+<p><img src="https://user-images.githubusercontent.com/30682550/37188666-47a6dd46-238b-11e8-9f8a-6c09ae22527c.png" alt=""></p>
+<ol>
+<li>比如我们用浏览器打开一个网页 <a href="https://www.baidu.com" target="_blank" rel="noopener">https://www.baidu.com</a> ，这时，浏览器就是客户端 A ，百度的服务器就是服务器 B 了。这时候客户端 A 会生成一个<code>随机数(1)</code>，把<code>随机数(1)</code> 、自己支持的 <code>SSL 版本号</code>以及<code>加密算法</code>等这些信息告诉服务器 B 。</li>
+<li>服务器 B 知道这些信息后，然后确认一下双方的加密算法，然后服务端也生成一个<code>随机数(2)</code> ，并将<code>随机数(2)</code>和 <code>CA颁发给自己的证书</code>一同返回给客户端 A 。</li>
+<li>客户端 A 得到 CA 证书后，会去校验该 CA 证书的<code>有效性</code>，校验方法在上边说过了。校验通过后，客户端生成一个<code>随机数(3)</code> ，然后用证书中的公钥加密<code>随机数(3)</code> 并传输给服务端 B 。</li>
+<li>服务端 B 得到加密后的随机数3，然后利用<code>私钥</code>进行解密，得到真正的<code>随机数(3)</code>.</li>
+<li>最后，客户端 A 和服务端 B 都有随机数(1)、随机数(2)、随机数(3)，然后双方利用相同规则把这三个随机数生成一个<code>对话密钥</code>。之后传输内容就是利用对话密钥来进行加解密了。这时就是利用了<code>对称加密</code>，一般用的都是 <code>AES</code> 算法。</li>
+<li>服务端 B 把内容通过该对话密钥进行对称加密，将信息和密钥通过某种算法混合在一起，这样除非知道密钥，不然无法获取内容，而正好客户端和服务端都知道这个密钥，所以只要加密算法够彪悍，密钥够复杂，数据就够安全。</li>
+<li>传输加密后的信息 这部分信息就是服务端 B 用密钥加密后的信息，可以在客户端 A 用随机值解密还原。</li>
+<li>客户端解密信息 客户端A用之前生产的密钥解密服务端传过来的信息，于是获取了解密后的内容。整个过程第三方即使监听到了数据，也束手无策。  </li>
+</ol>
+<p>到此，SSL 握手过程就讲完了。可能上面的流程太过于复杂，我们简单地来讲：  </p>
+<ol>
+<li>客户端和服务端建立 SSL 握手，客户端通过 CA 证书来确认服务端的身份；</li>
+<li>互相传递三个随机数，之后通过这随机数来生成一个密钥；</li>
+<li>互相确认密钥，然后握手结束；</li>
+<li>数据通讯开始，都使用同一个对话密钥来加解密；  </li>
+</ol>
+<h2 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h2><p>&emsp;&emsp;综上所述，相比 HTTP 协议，HTTPS 协议增加了很多握手、加密解密等流程，虽然过程很复杂，但其可以保证数据传输的安全。所以在这个互联网膨胀的时代，其中隐藏着各种看不见的危机，为了保证数据的安全，维护网络稳定，建议大家多多推广HTTPS。</p>
+<p>本人菜鸟，以上有什么不对的地方欢迎指出！</p>
 
       
     </div>
@@ -321,13 +368,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2018/03/02/2018-03-02-android-8/">Android8.0适配问题</a></p>
+        <p><span>本文标题:</span><a href="/2017/03/02/2017-03-02-android-https/">HTTPS详解</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
-        <p><span>发布时间:</span>2018-03-02, 09:59:05</p>
-        <p><span>最后更新:</span>2018-03-02, 10:28:51</p>
+        <p><span>发布时间:</span>2017-03-02, 10:05:09</p>
+        <p><span>最后更新:</span>2017-03-03, 11:25:20</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2018/03/02/2018-03-02-android-8/" title="Android8.0适配问题">http://yoursite.com/2018/03/02/2018-03-02-android-8/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2018/03/02/2018-03-02-android-8/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2017/03/02/2017-03-02-android-https/" title="HTTPS详解">http://yoursite.com/2017/03/02/2017-03-02-android-https/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2017/03/02/2017-03-02-android-https/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -340,15 +387,15 @@
     <nav id="article-nav">
         
             <div id="article-nav-newer" class="article-nav-title">
-                <a href="/2018/03/03/2018-03-03-kotlin-note/">
-                    Kotlin学习笔记（一）
+                <a href="/2018/03/01/2018-03-01-android-crash/">
+                    避免android Crash崩溃闪屏现象的解决方案
                 </a>
             </div>
         
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="/2018/03/01/2018-03-01-android-crash/">
-                    避免android Crash崩溃闪屏现象的解决方案
+                <a href="/2016/11/05/2016-11-05-LruCache/">
+                    深入剖析LruCache
                 </a>
             </div>
         
@@ -360,7 +407,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Log日志信息"><span class="toc-number">1.</span> <span class="toc-text">Log日志信息</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是HTTPS"><span class="toc-number">1.</span> <span class="toc-text">什么是HTTPS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#加密算法"><span class="toc-number">2.</span> <span class="toc-text">加密算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CA证书"><span class="toc-number">3.</span> <span class="toc-text">CA证书</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#校验方法"><span class="toc-number">3.1.</span> <span class="toc-text">校验方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结束语"><span class="toc-number">4.</span> <span class="toc-text">结束语</span></a></li></ol>
         
     </div>
     <style>
@@ -400,7 +447,7 @@
     
       <div class="duoshuo" id="comments">
     <div id="comment-box" ></div>
-    <div class="ds-thread" id="ds-thread" data-thread-key="2018/03/02/2018-03-02-android-8/" data-title="Android8.0适配问题" data-url="http://yoursite.com/2018/03/02/2018-03-02-android-8/"></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2017/03/02/2017-03-02-android-https/" data-title="HTTPS详解" data-url="http://yoursite.com/2017/03/02/2017-03-02-android-https/"></div>
     <script>
         var duoshuoQuery = {short_name:""};
         var loadComment = function(){
@@ -423,7 +470,7 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2018/03/03/2018-03-03-kotlin-note/" title="上一篇: Kotlin学习笔记（一）">
+            <a href="/2018/03/01/2018-03-01-android-crash/" title="上一篇: 避免android Crash崩溃闪屏现象的解决方案">
                 <i class="fa fa-angle-left"></i>
             </a>
         
@@ -431,7 +478,7 @@
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/2018/03/01/2018-03-01-android-crash/" title="下一篇: 避免android Crash崩溃闪屏现象的解决方案">
+            <a href="/2016/11/05/2016-11-05-LruCache/" title="下一篇: 深入剖析LruCache">
                 <i class="fa fa-angle-right"></i>
             </a>
         
