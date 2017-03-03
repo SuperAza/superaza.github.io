@@ -23,7 +23,7 @@
 <meta property="og:site_name" content="夏洛克丶Aza">
 <meta property="og:description" content="&amp;emsp;&amp;emsp;日常开发中几乎所有的程序猿（媛）们都知道HTTPS是用来客户端和服务器进行的一种安全连接，可以有效的保证内容信息安全，防止被抓包，那怎么保证信息安全的呢？很多人又会说加密，不得不承认说的没错，是利用加密方式进行的非明文传输，但是最后的问题来了，这怎么进行加密解密的呢？真正了解原理的人就少了很多，下面的内容就是为了丰(用)富(来)你(装)的(比)知识面准备的！">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-09T03:30:01.871Z">
+<meta property="og:updated_time" content="2017-03-03T03:35:04.451Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HTTPS详解">
 <meta name="twitter:description" content="&amp;emsp;&amp;emsp;日常开发中几乎所有的程序猿（媛）们都知道HTTPS是用来客户端和服务器进行的一种安全连接，可以有效的保证内容信息安全，防止被抓包，那怎么保证信息安全的呢？很多人又会说加密，不得不承认说的没错，是利用加密方式进行的非明文传输，但是最后的问题来了，这怎么进行加密解密的呢？真正了解原理的人就少了很多，下面的内容就是为了丰(用)富(来)你(装)的(比)知识面准备的！">
@@ -333,8 +333,8 @@
 <li>首先客户端读取证书中的证书所有者、有效期等信息进行一一校验</li>
 <li>客户端开始查找操作系统中已内置的受信任的证书发布机构CA，与服务器发来的证书中的颁发者CA比对，用于校验证书是否为合法机构颁发 </li>
 <li>如果找不到，客户端就会报错，说明服务器发来的证书是不可信任的。</li>
-<li>如果找到，那么客户端就会从操作系统中取出  颁发者CA  的公钥，然后对服务器发来的证书里面的签名进行解密得到hash-a。</li>
-<li>客户端使用相同的hash算法计算出服务器发来的证书的hash值hash-b，将这个计算的hash值与证书中签名做对比。</li>
+<li>如果找到，那么客户端就会从操作系统中取出  颁发者CA  的公钥，然后对服务器发来的证书里面的签名进行解密得到<code>hash-a</code>。</li>
+<li>客户端使用相同的hash算法计算出服务器发来的证书的hash值<code>hash-b</code>，将这个计算的hash值与证书中签名做对比。</li>
 <li>对比结果一致，则证明服务器发来的证书合法，没有被冒充</li>
 </ol>
 <p>知道以上内容，我们就来详细的看一下解决身份认证和信息完整性验证的具体过程，也称为HTTPS的中SSL握手建立过程,如下图所示：<br><img src="" alt=""></p>
@@ -368,7 +368,7 @@
         <p><span>本文标题:</span><a href="/2017/03/02/2017-03-02-android-https/">HTTPS详解</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
         <p><span>发布时间:</span>2017-03-02, 10:05:09</p>
-        <p><span>最后更新:</span>2018-03-09, 11:30:01</p>
+        <p><span>最后更新:</span>2017-03-03, 11:35:04</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2017/03/02/2017-03-02-android-https/" title="HTTPS详解">http://www.sherlockaza.com/2017/03/02/2017-03-02-android-https/</a>
             <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2017/03/02/2017-03-02-android-https/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -495,7 +495,7 @@
         <div id="footer-info">
             <div class="footer-left">
                 <i class="fa fa-copyright"></i> 
-                2016-2018 夏洛克丶Aza
+                2016-2017 夏洛克丶Aza
             </div>
             <div class="footer-right">
                 <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
