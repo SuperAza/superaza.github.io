@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="夏洛克丶Aza" />
+
+
+
+<meta name="description" content="&amp;emsp;&amp;emsp;之前对OkHttp的分析可以知道一个请求获取的Response是通过一个叫做拦截器链的东西得到的,Response result = getResponseWithInterceptorChain();,其中拦截器链的设计和实现也是OkHttp设计精妙之处之一。">
+<meta name="keywords" content="OkHttp,源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OkHttp源码阅读(三) —— 拦截器之拦截器链">
+<meta property="og:url" content="http://www.sherlockaza.com/2017/03/14/2017-03-14-android-okhttp-interceptor-1/index.html">
+<meta property="og:site_name" content="夏洛克丶Aza">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;之前对OkHttp的分析可以知道一个请求获取的Response是通过一个叫做拦截器链的东西得到的,Response result = getResponseWithInterceptorChain();,其中拦截器链的设计和实现也是OkHttp设计精妙之处之一。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://www.sherlockaza.com/2017/03/14/2017-03-14-android-okhttp-interceptor-1/(https://user-images.githubusercontent.com/30682550/38016334-47526066-32a1-11e8-9e71-93167acd5ec0.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38016872-fd6acc34-32a2-11e8-8971-9a2bb4682808.jpg">
+<meta property="og:updated_time" content="2017-03-14T10:19:52.798Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OkHttp源码阅读(三) —— 拦截器之拦截器链">
+<meta name="twitter:description" content="&amp;emsp;&amp;emsp;之前对OkHttp的分析可以知道一个请求获取的Response是通过一个叫做拦截器链的东西得到的,Response result = getResponseWithInterceptorChain();,其中拦截器链的设计和实现也是OkHttp设计精妙之处之一。">
+<meta name="twitter:image" content="http://www.sherlockaza.com/2017/03/14/2017-03-14-android-okhttp-interceptor-1/(https://user-images.githubusercontent.com/30682550/38016334-47526066-32a1-11e8-9e71-93167acd5ec0.jpg">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="夏洛克丶Aza" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>OkHttp源码阅读(三) —— 拦截器之拦截器链 | 夏洛克丶Aza</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56ff76c972fc0cf9"></script>
+
+
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpeg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">夏洛克丶Aza</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">一个被程序猿耽误的厨子</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:sherlockaza@yahoo.com" title="Email"></a>
+                            
+                                <a class="fa QQ" href="/334880952" title="QQ"></a>
+                            
+                                <a class="fa 微信" href="/gxin_334880952" title="微信"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crash/">Crash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashMap/">HashMap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LruCache/">LruCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OkHttp/">OkHttp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Queue/">Queue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/加密/">加密</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/基础/">基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/容器/">容器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/栈/">栈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码分析/">源码分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/缓存/">缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言/">语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/适配/">适配</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/队列/">队列</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于前端</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">夏洛克丶Aza</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpeg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">夏洛克丶Aza</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">一个被程序猿耽误的厨子</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:sherlockaza@yahoo.com" title="Email"></a>
+                            
+                                <a class="fa QQ" target="_blank" href="/334880952" title="QQ"></a>
+                            
+                                <a class="fa 微信" target="_blank" href="/gxin_334880952" title="微信"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="posts-2017-03-14-android-okhttp-interceptor-1" class="article article-type-posts" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/14/2017-03-14-android-okhttp-interceptor-1/" class="article-date">
+      <time datetime="2017-03-14T06:37:22.000Z" itemprop="datePublished">2017-03-14</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      OkHttp源码阅读(三) —— 拦截器之拦截器链
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Android/">Android</a><a class="article-category-link" href="/categories/Android/源码分析/">源码分析</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OkHttp/">OkHttp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码分析/">源码分析</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>&emsp;&emsp;之前对OkHttp的分析可以知道一个请求获取的Response是通过一个叫做拦截器链的东西得到的,<strong>Response result = getResponseWithInterceptorChain();</strong>,其中拦截器链的设计和实现也是OkHttp设计精妙之处之一。<br><a id="more"></a></p>
+<h2 id="责任链"><a href="#责任链" class="headerlink" title="责任链"></a>责任链</h2><p>&emsp;&emsp;在了解OkHttp的拦截器链之前，首先要之知道一个设计模式叫<strong><code>责任链</code></strong>，责任链的设计模式最好的体现就是在网络请求的设计上，我们知道一个网络请求发出后要经过<strong>应用程-&gt;传输层-&gt;网络层-&gt;连接层-&gt;物理层</strong>，收到到一个响应时也会反过来经过<strong>物理层-&gt;连接层-&gt;网络层-&gt;传输层-&gt;应用层</strong>，每一次都可以对请求进行封装，也可以对响应进行处理，并且可以终端连接，以自身为终点返回响应。  </p>
+<h2 id="拦截器链"><a href="#拦截器链" class="headerlink" title="拦截器链"></a>拦截器链</h2><p>&emsp;&emsp;有了上边对责任链的了解，我们看下OkHttp中的拦截器链式怎么使用责任链设计模式的，首先，OkHttp内置了有几个拦截器，其中包括：<strong>RetryAndFollowUpInterceptor</strong>、<strong>BridgeInterceptor</strong>、<strong>CacheInterceptor</strong>、<strong>ConnectInterceptor</strong>、<strong>CallServerInterceptor</strong>，<code>Interceptor</code>是一个接口，客户端可以自定义拦截器加入到拦截器链中。一个完整的网络请求发起到最后得到响应的流程是通过拦截器链一层一层流转工作而来，具体如下图:<br><img src="(https://user-images.githubusercontent.com/30682550/38016334-47526066-32a1-11e8-9e71-93167acd5ec0.jpg" width="70%" height="70%"></p>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>&emsp;&emsp;我们看下OkHttp的拦截器链是怎么实现链式结构，从而发起请求和响应的呢,还是通过<strong>Response result = getResponseWithInterceptorChain()</strong>跟进可以发现:  </p>
+<p><img src="https://user-images.githubusercontent.com/30682550/38016872-fd6acc34-32a2-11e8-8971-9a2bb4682808.jpg" width="70%" height="70%"><br>将上述说道几种拦截器放到了一个结合当中，形成一个<code>interceptors</code>这个的一个list，再通过下面代码将拦截器链初始化<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Interceptor.Chain chain = <span class="keyword">new</span> RealInterceptorChain(interceptors, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="number">0</span>,</span><br><span class="line">        originalRequest, <span class="keyword">this</span>, eventListener, client.connectTimeoutMillis(),</span><br><span class="line">        client.readTimeoutMillis(), client.writeTimeoutMillis());</span><br></pre></td></tr></table></figure></p>
+<p>我们可以看到真正的拦截器链的对象是一个实现了<code>Interceptor.Chain</code>接口的实现类<strong><code>RealInterceptorChain</code></strong>,他的初始化参数就是刚刚的拦截器集合，网络请求以及其他参数，最后调用<strong><code>chain.proceed(originalRequest)</code></strong>真正实现拦截器链的工作。所以拦截器的重点是<strong>chain.proceed(originalRequest)</strong>方法实现，由于<code>Interceptor.Chain</code>是个接口，所以<strong>proceed</strong>方法的实现是在<strong><code>RealInterceptorChain</code></strong>中,  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Response <span class="title">proceed</span><span class="params">(Request request, StreamAllocation streamAllocation, HttpCodec httpCodec,</span></span></span><br><span class="line"><span class="function"><span class="params">      RealConnection connection)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (index &gt;= interceptors.size()) <span class="keyword">throw</span> <span class="keyword">new</span> AssertionError();</span><br><span class="line"></span><br><span class="line">    calls++;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If we already have a stream, confirm that the incoming request will use it.</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.httpCodec != <span class="keyword">null</span> &amp;&amp; !<span class="keyword">this</span>.connection.supportsUrl(request.url())) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"network interceptor "</span> + interceptors.get(index - <span class="number">1</span>)</span><br><span class="line">          + <span class="string">" must retain the same host and port"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If we already have a stream, confirm that this is the only call to chain.proceed().</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.httpCodec != <span class="keyword">null</span> &amp;&amp; calls &gt; <span class="number">1</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"network interceptor "</span> + interceptors.get(index - <span class="number">1</span>)</span><br><span class="line">          + <span class="string">" must call proceed() exactly once"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Call the next interceptor in the chain.</span></span><br><span class="line">    RealInterceptorChain next = <span class="keyword">new</span> RealInterceptorChain(interceptors, streamAllocation, httpCodec,</span><br><span class="line">        connection, index + <span class="number">1</span>, request, call, eventListener, connectTimeout, readTimeout,</span><br><span class="line">        writeTimeout);</span><br><span class="line">    Interceptor interceptor = interceptors.get(index);</span><br><span class="line">    Response response = interceptor.intercept(next);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Confirm that the next interceptor made its required call to chain.proceed().</span></span><br><span class="line">    <span class="keyword">if</span> (httpCodec != <span class="keyword">null</span> &amp;&amp; index + <span class="number">1</span> &lt; interceptors.size() &amp;&amp; next.calls != <span class="number">1</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"network interceptor "</span> + interceptor</span><br><span class="line">          + <span class="string">" must call proceed() exactly once"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Confirm that the intercepted response isn't null.</span></span><br><span class="line">    <span class="keyword">if</span> (response == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">"interceptor "</span> + interceptor + <span class="string">" returned null"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (response.body() == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(</span><br><span class="line">          <span class="string">"interceptor "</span> + interceptor + <span class="string">" returned a response with no body"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> response;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>代码较长但是不难发现其中的重点，就是下面一段代码:  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Call the next interceptor in the chain.</span></span><br><span class="line">    RealInterceptorChain next = <span class="keyword">new</span> RealInterceptorChain(interceptors, streamAllocation, httpCodec,</span><br><span class="line">        connection, index + <span class="number">1</span>, request, call, eventListener, connectTimeout, readTimeout,</span><br><span class="line">        writeTimeout);</span><br><span class="line">    Interceptor interceptor = interceptors.get(index);</span><br><span class="line">    Response response = interceptor.intercept(next);</span><br></pre></td></tr></table></figure>
+<p>由注释我们也可以看出这段代码的意思是调用拦截器链中的下一个拦截器，其中index是拦截器链中不同拦截器的索引，拦截器链初始化完成后第一次调用的是<strong>index = 0</strong>的拦截器，执行<code>Interceptor</code>接口中定义的<strong>Response intercept(Chain chain) throws IOException;</strong>方法，其中的参数是一个拦截器链，这个拦截器链起始index是+1的，也就是除去自身以外后边的所有拦截器，再看<strong>interceptor.intercept()</strong>方法, 由于Interceptor是一个接口，我们随便拿一个拦截器举例(RetryAndFollowUpInterceptor)看下它的intercept()方法时怎么实现的,  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Response <span class="title">intercept</span><span class="params">(Chain chain)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    Request request = chain.request();</span><br><span class="line">    RealInterceptorChain realChain = (RealInterceptorChain) chain;</span><br><span class="line">    Call call = realChain.call();</span><br><span class="line">    EventListener eventListener = realChain.eventListener();</span><br><span class="line"></span><br><span class="line">    StreamAllocation streamAllocation = <span class="keyword">new</span> StreamAllocation(client.connectionPool(),</span><br><span class="line">        createAddress(request.url()), call, eventListener, callStackTrace);</span><br><span class="line">    <span class="keyword">this</span>.streamAllocation = streamAllocation;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> followUpCount = <span class="number">0</span>;</span><br><span class="line">    Response priorResponse = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (canceled) &#123;</span><br><span class="line">        streamAllocation.release();</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Canceled"</span>);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      Response response;</span><br><span class="line">      <span class="keyword">boolean</span> releaseConnection = <span class="keyword">true</span>;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        response = realChain.proceed(request, streamAllocation, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">        releaseConnection = <span class="keyword">false</span>;</span><br><span class="line">      &#125; <span class="keyword">catch</span> (RouteException e) &#123;</span><br><span class="line">        <span class="comment">// The attempt to connect via a route failed. The request will not have been sent.</span></span><br><span class="line">        <span class="keyword">if</span> (!recover(e.getLastConnectException(), streamAllocation, <span class="keyword">false</span>, request)) &#123;</span><br><span class="line">          <span class="keyword">throw</span> e.getLastConnectException();</span><br><span class="line">        &#125;</span><br><span class="line">        releaseConnection = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        <span class="comment">// An attempt to communicate with a server failed. The request may have been sent.</span></span><br><span class="line">        <span class="keyword">boolean</span> requestSendStarted = !(e <span class="keyword">instanceof</span> ConnectionShutdownException);</span><br><span class="line">        <span class="keyword">if</span> (!recover(e, streamAllocation, requestSendStarted, request)) <span class="keyword">throw</span> e;</span><br><span class="line">        releaseConnection = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// We're throwing an unchecked exception. Release any resources.</span></span><br><span class="line">        <span class="keyword">if</span> (releaseConnection) &#123;</span><br><span class="line">          streamAllocation.streamFailed(<span class="keyword">null</span>);</span><br><span class="line">          streamAllocation.release();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// Attach the prior response if it exists. Such responses never have a body.</span></span><br><span class="line">      <span class="keyword">if</span> (priorResponse != <span class="keyword">null</span>) &#123;</span><br><span class="line">        response = response.newBuilder()</span><br><span class="line">            .priorResponse(priorResponse.newBuilder()</span><br><span class="line">                    .body(<span class="keyword">null</span>)</span><br><span class="line">                    .build())</span><br><span class="line">            .build();</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      Request followUp = followUpRequest(response, streamAllocation.route());</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (followUp == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!forWebSocket) &#123;</span><br><span class="line">          streamAllocation.release();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> response;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      closeQuietly(response.body());</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (++followUpCount &gt; MAX_FOLLOW_UPS) &#123;</span><br><span class="line">        streamAllocation.release();</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ProtocolException(<span class="string">"Too many follow-up requests: "</span> + followUpCount);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (followUp.body() <span class="keyword">instanceof</span> UnrepeatableRequestBody) &#123;</span><br><span class="line">        streamAllocation.release();</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> HttpRetryException(<span class="string">"Cannot retry streamed HTTP body"</span>, response.code());</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!sameConnection(response, followUp.url())) &#123;</span><br><span class="line">        streamAllocation.release();</span><br><span class="line">        streamAllocation = <span class="keyword">new</span> StreamAllocation(client.connectionPool(),</span><br><span class="line">            createAddress(followUp.url()), call, eventListener, callStackTrace);</span><br><span class="line">        <span class="keyword">this</span>.streamAllocation = streamAllocation;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (streamAllocation.codec() != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Closing the body of "</span> + response</span><br><span class="line">            + <span class="string">" didn't close its backing stream. Bad interceptor?"</span>);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      request = followUp;</span><br><span class="line">      priorResponse = response;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>同样代码很长，其它代码都先不用管，后面会说明，着重看这行代码:  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">response = realChain.proceed(request, streamAllocation, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br></pre></td></tr></table></figure>
+<p>我们可以发现这个拦截器的<code>intercept</code>方法调用中，Response的响应还是交给了拦截器链，而这个拦截器链是通过<strong>RealIonterceptorChain</strong>中的proceed方法获取，每次调用index都会+1，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">RealInterceptorChain next = <span class="keyword">new</span> RealInterceptorChain(interceptors, streamAllocation, httpCodec,</span><br><span class="line">        connection, index + <span class="number">1</span>, request, call, eventListener, connectTimeout, readTimeout,</span><br><span class="line">        writeTimeout);</span><br></pre></td></tr></table></figure>
+<p>这样一来就形成链式结构，拦截器链调用<strong>proceed</strong>方法，<strong>proceed</strong>方法会获取当前拦截器，执行该拦截器的<strong>intercept()</strong>, <strong>intercept()</strong>方法又会调用传进来的自己后边拦截器链的<strong>proceed</strong>方法，这样一来反反复复的调用，知道所有拦截器都被调用为止。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>&emsp;&emsp;<strong>责任链</strong>的设计模式在OkHttp的设计中体现的淋漓尽致，一开始看拦截器链的代码时也是出于懵逼状态，所以一开始先了解下责任链设计模式，后面我们针对不同的拦截器做细致的分析。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/03/14/2017-03-14-android-okhttp-interceptor-1/">OkHttp源码阅读(三) —— 拦截器之拦截器链</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
+        <p><span>发布时间:</span>2017-03-14, 14:37:22</p>
+        <p><span>最后更新:</span>2017-03-14, 18:19:52</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/03/14/2017-03-14-android-okhttp-interceptor-1/" title="OkHttp源码阅读(三) —— 拦截器之拦截器链">http://www.sherlockaza.com/2017/03/14/2017-03-14-android-okhttp-interceptor-1/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2017/03/14/2017-03-14-android-okhttp-interceptor-1/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2018/03/01/2018-03-01-android-crash/">
+                    避免android Crash崩溃闪屏现象的解决方案
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/03/12/2017-03-12-android-okhttp-dispatcher/">
+                    OkHttp源码阅读(二)—— Dispatcher任务调度器
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#责任链"><span class="toc-number">1.</span> <span class="toc-text">责任链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#拦截器链"><span class="toc-number">2.</span> <span class="toc-text">拦截器链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码实现"><span class="toc-number">3.</span> <span class="toc-text">代码实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+
+    
+        <div class="addthis_sharing_toolbox"></div>
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2017/03/14/2017-03-14-android-okhttp-interceptor-1/" data-title="OkHttp源码阅读(三) —— 拦截器之拦截器链" data-url="http://www.sherlockaza.com/2017/03/14/2017-03-14-android-okhttp-interceptor-1/"></div>
+    <script>
+        var duoshuoQuery = {short_name:""};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2018/03/01/2018-03-01-android-crash/" title="上一篇: 避免android Crash崩溃闪屏现象的解决方案">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/03/12/2017-03-12-android-okhttp-dispatcher/" title="下一篇: OkHttp源码阅读(二)—— Dispatcher任务调度器">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/03/2018-03-03-kotlin-note/">Kotlin学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/02/2018-03-02-android-8/">Android8.0适配问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/2018-03-01-android-crash/">避免android Crash崩溃闪屏现象的解决方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/14/2017-03-14-android-okhttp-interceptor-1/">OkHttp源码阅读(三) —— 拦截器之拦截器链</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/12/2017-03-12-android-okhttp-dispatcher/">OkHttp源码阅读(二)—— Dispatcher任务调度器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/11/2017-03-11-okhttp-source-1/">OkHttp源码阅读（一）-——初识OkHttp</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/2017-03-08-design-builder/">设计模式之Builder模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/2017-03-02-android-https/">HTTPS详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/21/2016-11-21-java-deque/">Java容器之双端队列Deque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/12/2016-11-10-java-stack/">Java容器之栈Stack</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/2016-11-08-java-queue/">Java容器之队列Qeque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/05/2016-11-05-LruCache/">深入剖析LruCache</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/2016-11-03-java-linkedhashmap/">LinkedHashMap原理分析</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2017 夏洛克丶Aza
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        $("a[target=_blank]").removeAttr("target");
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
