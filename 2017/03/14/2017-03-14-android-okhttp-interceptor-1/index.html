@@ -23,13 +23,13 @@
 <meta property="og:site_name" content="夏洛克丶Aza">
 <meta property="og:description" content="&amp;emsp;&amp;emsp;之前对OkHttp的分析可以知道一个请求获取的Response是通过一个叫做拦截器链的东西得到的,Response result = getResponseWithInterceptorChain();,其中拦截器链的设计和实现也是OkHttp设计精妙之处之一。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://www.sherlockaza.com/2017/03/14/2017-03-14-android-okhttp-interceptor-1/(https://user-images.githubusercontent.com/30682550/38016334-47526066-32a1-11e8-9e71-93167acd5ec0.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38019451-313eeb60-32aa-11e8-8d22-b6eced3d3ae0.jpg">
 <meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38016872-fd6acc34-32a2-11e8-8971-9a2bb4682808.jpg">
-<meta property="og:updated_time" content="2017-03-14T10:19:52.798Z">
+<meta property="og:updated_time" content="2017-03-14T10:23:07.632Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OkHttp源码阅读(三) —— 拦截器之拦截器链">
 <meta name="twitter:description" content="&amp;emsp;&amp;emsp;之前对OkHttp的分析可以知道一个请求获取的Response是通过一个叫做拦截器链的东西得到的,Response result = getResponseWithInterceptorChain();,其中拦截器链的设计和实现也是OkHttp设计精妙之处之一。">
-<meta name="twitter:image" content="http://www.sherlockaza.com/2017/03/14/2017-03-14-android-okhttp-interceptor-1/(https://user-images.githubusercontent.com/30682550/38016334-47526066-32a1-11e8-9e71-93167acd5ec0.jpg">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/30682550/38019451-313eeb60-32aa-11e8-8d22-b6eced3d3ae0.jpg">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -316,7 +316,7 @@
           
         <p>&emsp;&emsp;之前对OkHttp的分析可以知道一个请求获取的Response是通过一个叫做拦截器链的东西得到的,<strong>Response result = getResponseWithInterceptorChain();</strong>,其中拦截器链的设计和实现也是OkHttp设计精妙之处之一。<br><a id="more"></a></p>
 <h2 id="责任链"><a href="#责任链" class="headerlink" title="责任链"></a>责任链</h2><p>&emsp;&emsp;在了解OkHttp的拦截器链之前，首先要之知道一个设计模式叫<strong><code>责任链</code></strong>，责任链的设计模式最好的体现就是在网络请求的设计上，我们知道一个网络请求发出后要经过<strong>应用程-&gt;传输层-&gt;网络层-&gt;连接层-&gt;物理层</strong>，收到到一个响应时也会反过来经过<strong>物理层-&gt;连接层-&gt;网络层-&gt;传输层-&gt;应用层</strong>，每一次都可以对请求进行封装，也可以对响应进行处理，并且可以终端连接，以自身为终点返回响应。  </p>
-<h2 id="拦截器链"><a href="#拦截器链" class="headerlink" title="拦截器链"></a>拦截器链</h2><p>&emsp;&emsp;有了上边对责任链的了解，我们看下OkHttp中的拦截器链式怎么使用责任链设计模式的，首先，OkHttp内置了有几个拦截器，其中包括：<strong>RetryAndFollowUpInterceptor</strong>、<strong>BridgeInterceptor</strong>、<strong>CacheInterceptor</strong>、<strong>ConnectInterceptor</strong>、<strong>CallServerInterceptor</strong>，<code>Interceptor</code>是一个接口，客户端可以自定义拦截器加入到拦截器链中。一个完整的网络请求发起到最后得到响应的流程是通过拦截器链一层一层流转工作而来，具体如下图:<br><img src="(https://user-images.githubusercontent.com/30682550/38016334-47526066-32a1-11e8-9e71-93167acd5ec0.jpg" width="70%" height="70%"></p>
+<h2 id="拦截器链"><a href="#拦截器链" class="headerlink" title="拦截器链"></a>拦截器链</h2><p>&emsp;&emsp;有了上边对责任链的了解，我们看下OkHttp中的拦截器链式怎么使用责任链设计模式的，首先，OkHttp内置了有几个拦截器，其中包括：<strong>RetryAndFollowUpInterceptor</strong>、<strong>BridgeInterceptor</strong>、<strong>CacheInterceptor</strong>、<strong>ConnectInterceptor</strong>、<strong>CallServerInterceptor</strong>，<code>Interceptor</code>是一个接口，客户端可以自定义拦截器加入到拦截器链中。一个完整的网络请求发起到最后得到响应的流程是通过拦截器链一层一层流转工作而来，具体如下图:<br><img src="https://user-images.githubusercontent.com/30682550/38019451-313eeb60-32aa-11e8-8d22-b6eced3d3ae0.jpg" width="70%" height="70%"></p>
 <h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>&emsp;&emsp;我们看下OkHttp的拦截器链是怎么实现链式结构，从而发起请求和响应的呢,还是通过<strong>Response result = getResponseWithInterceptorChain()</strong>跟进可以发现:  </p>
 <p><img src="https://user-images.githubusercontent.com/30682550/38016872-fd6acc34-32a2-11e8-8971-9a2bb4682808.jpg" width="70%" height="70%"><br>将上述说道几种拦截器放到了一个结合当中，形成一个<code>interceptors</code>这个的一个list，再通过下面代码将拦截器链初始化<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Interceptor.Chain chain = <span class="keyword">new</span> RealInterceptorChain(interceptors, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="number">0</span>,</span><br><span class="line">        originalRequest, <span class="keyword">this</span>, eventListener, client.connectTimeoutMillis(),</span><br><span class="line">        client.readTimeoutMillis(), client.writeTimeoutMillis());</span><br></pre></td></tr></table></figure></p>
 <p>我们可以看到真正的拦截器链的对象是一个实现了<code>Interceptor.Chain</code>接口的实现类<strong><code>RealInterceptorChain</code></strong>,他的初始化参数就是刚刚的拦截器集合，网络请求以及其他参数，最后调用<strong><code>chain.proceed(originalRequest)</code></strong>真正实现拦截器链的工作。所以拦截器的重点是<strong>chain.proceed(originalRequest)</strong>方法实现，由于<code>Interceptor.Chain</code>是个接口，所以<strong>proceed</strong>方法的实现是在<strong><code>RealInterceptorChain</code></strong>中,  </p>
@@ -342,7 +342,7 @@
         <p><span>本文标题:</span><a href="/2017/03/14/2017-03-14-android-okhttp-interceptor-1/">OkHttp源码阅读(三) —— 拦截器之拦截器链</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
         <p><span>发布时间:</span>2017-03-14, 14:37:22</p>
-        <p><span>最后更新:</span>2017-03-14, 18:19:52</p>
+        <p><span>最后更新:</span>2017-03-14, 18:23:07</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2017/03/14/2017-03-14-android-okhttp-interceptor-1/" title="OkHttp源码阅读(三) —— 拦截器之拦截器链">http://www.sherlockaza.com/2017/03/14/2017-03-14-android-okhttp-interceptor-1/</a>
             <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2017/03/14/2017-03-14-android-okhttp-interceptor-1/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
