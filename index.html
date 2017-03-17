@@ -465,6 +465,74 @@
 
 
   
+    <article id="posts-2017-03-17-android-okhttp-interceptor-02" class="article article-type-posts" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/17/2017-03-17-android-okhttp-interceptor-02/" class="article-date">
+      <time datetime="2017-03-17T01:35:56.000Z" itemprop="datePublished">2017-03-17</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/17/2017-03-17-android-okhttp-interceptor-02/">OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>&emsp;&emsp;上一篇我们了解了OkHttp的拦截器链是如何形成连式结构，并且如何工作的，接下来开始逐个的分析学习OkHttp内置的几个拦截器。首先第一个拦截器:重试和重定向拦截器<code>RetryAndFollowUpInterceptor</code><br>
+          
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Android/">Android</a><a class="article-category-link" href="/categories/Android/源码分析/">源码分析</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OkHttp/">OkHttp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码分析/">源码分析</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a href="/2017/03/17/2017-03-17-android-okhttp-interceptor-02/#more">阅读全文 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="posts-2017-03-14-android-okhttp-interceptor-1" class="article article-type-posts" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -851,74 +919,6 @@
       
         <p class="article-more-link">
           <a href="/2016/11/21/2016-11-21-java-deque/#more">阅读全文 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="posts-2016-11-10-java-stack" class="article article-type-posts" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/2016/11/12/2016-11-10-java-stack/" class="article-date">
-      <time datetime="2016-11-12T12:37:41.000Z" itemprop="datePublished">2016-11-12</time>
-</a>
-
-
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/11/12/2016-11-10-java-stack/">Java容器之栈Stack</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>&emsp;&emsp;<code>栈</code>是一种比较经典的数据结构，遵循<code>LIFO</code>原则,先进栈的元素总是要等到后进栈的元素出栈以后才能出栈，<code>JVM</code>内存划分中其中就有栈区，每个<code>线程</code>包含一个<code>栈区</code>，栈中只保存<code>基础数据类型的对象</code>和<code>自定义对象的引用</code>(不是对象)，对象都存放在堆区中，而且每个栈中的数据(原始类型和对象引用)都是<code>私有</code>的，其他栈不能访问。在<code>Android</code>开发中，如果不使用特殊的<code>Activity</code>启动模式，每次开启一个Activity都会在<code>栈顶</code>加入Activity，点击返回时，之前的Activity就会弹<code>出栈</code>，简单了解下栈的应用后，下面来看Java中的栈:</p>
-          
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Java/">Java</a><a class="article-category-link" href="/categories/Java/容器/">容器</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/容器/">容器</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/栈/">栈</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a href="/2016/11/12/2016-11-10-java-stack/#more">阅读全文 >></a>
         </p>
       
       <div class="clearfix"></div>

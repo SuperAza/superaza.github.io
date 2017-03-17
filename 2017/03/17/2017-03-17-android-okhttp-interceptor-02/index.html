@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="夏洛克丶Aza" />
+
+
+
+<meta name="description" content="&amp;emsp;&amp;emsp;上一篇我们了解了OkHttp的拦截器链是如何形成连式结构，并且如何工作的，接下来开始逐个的分析学习OkHttp内置的几个拦截器。首先第一个拦截器:重试和重定向拦截器RetryAndFollowUpInterceptor">
+<meta name="keywords" content="OkHttp,源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor">
+<meta property="og:url" content="http://www.sherlockaza.com/2017/03/17/2017-03-17-android-okhttp-interceptor-02/index.html">
+<meta property="og:site_name" content="夏洛克丶Aza">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;上一篇我们了解了OkHttp的拦截器链是如何形成连式结构，并且如何工作的，接下来开始逐个的分析学习OkHttp内置的几个拦截器。首先第一个拦截器:重试和重定向拦截器RetryAndFollowUpInterceptor">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-03-17T05:41:18.187Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor">
+<meta name="twitter:description" content="&amp;emsp;&amp;emsp;上一篇我们了解了OkHttp的拦截器链是如何形成连式结构，并且如何工作的，接下来开始逐个的分析学习OkHttp内置的几个拦截器。首先第一个拦截器:重试和重定向拦截器RetryAndFollowUpInterceptor">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="夏洛克丶Aza" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor | 夏洛克丶Aza</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56ff76c972fc0cf9"></script>
+
+
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpeg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">夏洛克丶Aza</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">一个被程序猿耽误的厨子</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:sherlockaza@yahoo.com" title="Email"></a>
+                            
+                                <a class="fa QQ" href="/334880952" title="QQ"></a>
+                            
+                                <a class="fa 微信" href="/gxin_334880952" title="微信"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crash/">Crash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashMap/">HashMap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LruCache/">LruCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OkHttp/">OkHttp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Queue/">Queue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/加密/">加密</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/基础/">基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/容器/">容器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/栈/">栈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码分析/">源码分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/缓存/">缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言/">语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/适配/">适配</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/队列/">队列</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于前端</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">夏洛克丶Aza</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpeg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">夏洛克丶Aza</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">一个被程序猿耽误的厨子</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:sherlockaza@yahoo.com" title="Email"></a>
+                            
+                                <a class="fa QQ" target="_blank" href="/334880952" title="QQ"></a>
+                            
+                                <a class="fa 微信" target="_blank" href="/gxin_334880952" title="微信"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="posts-2017-03-17-android-okhttp-interceptor-02" class="article article-type-posts" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/17/2017-03-17-android-okhttp-interceptor-02/" class="article-date">
+      <time datetime="2017-03-17T01:35:56.000Z" itemprop="datePublished">2017-03-17</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Android/">Android</a><a class="article-category-link" href="/categories/Android/源码分析/">源码分析</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OkHttp/">OkHttp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码分析/">源码分析</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>&emsp;&emsp;上一篇我们了解了OkHttp的拦截器链是如何形成连式结构，并且如何工作的，接下来开始逐个的分析学习OkHttp内置的几个拦截器。首先第一个拦截器:重试和重定向拦截器<code>RetryAndFollowUpInterceptor</code><br><a id="more"></a></p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>&emsp;&emsp;在拦截器链的链式结构中，除了用户自定义的拦截器，位于最上层的拦截器就是该拦截器了</p>
+<h2 id="主要功能"><a href="#主要功能" class="headerlink" title="主要功能"></a>主要功能</h2><blockquote>
+<p>连接失败重试(Retry)  </p>
+</blockquote>
+<p>&emsp;&emsp;在发生 <strong>RouteException</strong> 或者 <strong>IOException</strong> 后，会捕获建联或者读取的一些异常，根据一定的策略判断是否是可恢复的，如果可恢复会重新创建 <strong>StreamAllocation</strong> 开始新的一轮请求</p>
+<blockquote>
+<p>继续发起请求(FollowUp)</p>
+</blockquote>
+<p>主要有这几种类型  </p>
+<ol>
+<li>3xx 重定向</li>
+<li>401，407 未授权，调用 Authenticator 进行授权后继续发起新的请求</li>
+<li>408 客户端请求超时，如果 Request 的请求体没有被 <strong>UnrepeatableRequestBody</strong> 标记，会继续发起新的请求</li>
+</ol>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>&emsp;&emsp;拦截器的工作核心主要是intercpt方法，所以我们直接看intercpt方法</p>
+<h3 id="intercpt方法"><a href="#intercpt方法" class="headerlink" title="intercpt方法"></a>intercpt方法</h3><p>直接上代码，里边有详细的注释  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Response <span class="title">intercept</span><span class="params">(Chain chain)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    Request request = chain.request();</span><br><span class="line">    RealInterceptorChain realChain = (RealInterceptorChain) chain;</span><br><span class="line">    Call call = realChain.call();</span><br><span class="line">    EventListener eventListener = realChain.eventListener();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**初始化StreamAllcation类，这个类十分重要， 用来管理connections、stream、routerSelector的类</span></span><br><span class="line"><span class="comment">     * 在RetryAndFollowUpInterceptor中并没有用到初始化StreamAllcation类的核心功能，只是初始化和释放资源</span></span><br><span class="line"><span class="comment">     * 而已，它的作用会在ConnectInterceptor拦截器中体现，当前只需要知道它是用来建立连接的就可以了</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    StreamAllocation streamAllocation = <span class="keyword">new</span> StreamAllocation(client.connectionPool(),</span><br><span class="line">        createAddress(request.url()), call, eventListener, callStackTrace);</span><br><span class="line">    <span class="keyword">this</span>.streamAllocation = streamAllocation;</span><br><span class="line">    <span class="comment">/**计数器，记录重连次数*/</span></span><br><span class="line">    <span class="keyword">int</span> followUpCount = <span class="number">0</span>;</span><br><span class="line">    Response priorResponse = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">      <span class="comment">/**判断当前请求是否已经取消，是：释放链接资源**/</span></span><br><span class="line">      <span class="keyword">if</span> (canceled) &#123;</span><br><span class="line">        streamAllocation.release();</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Canceled"</span>);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      Response response;</span><br><span class="line">      <span class="comment">/**是否要释放链接，这个标记位后边会频繁使用*/</span></span><br><span class="line">      <span class="keyword">boolean</span> releaseConnection = <span class="keyword">true</span>;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">/**将创建链接和请求最为参数调用下一组拦截器链，最终的得到想要的response*/</span></span><br><span class="line">        response = realChain.proceed(request, streamAllocation, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">        <span class="comment">/**请求交给拦截器链后，就不需要释放链接了**/</span></span><br><span class="line">        releaseConnection = <span class="keyword">false</span>;</span><br><span class="line">      &#125; <span class="keyword">catch</span> (RouteException e) &#123;</span><br><span class="line">        <span class="comment">// The attempt to connect via a route failed. The request will not have been sent.</span></span><br><span class="line">        <span class="comment">/**路由异常RouteException*/</span></span><br><span class="line">        <span class="comment">/**检测路由异常是否能重新连接*/</span></span><br><span class="line">        <span class="keyword">if</span> (!recover(e.getLastConnectException(), streamAllocation, <span class="keyword">false</span>, request)) &#123;</span><br><span class="line">          <span class="comment">/**不可以重新链接，直接抛出异常*/</span></span><br><span class="line">          <span class="keyword">throw</span> e.getLastConnectException();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/**如果可以重新链接，就不需要释放链接了*/</span></span><br><span class="line">        releaseConnection = <span class="keyword">false</span>;</span><br><span class="line">        <span class="comment">/**如果可以重新链接，跳出本次循环，继续网络请求*/</span></span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        <span class="comment">// An attempt to communicate with a server failed. The request may have been sent.</span></span><br><span class="line">        <span class="comment">/**IO异常*/</span></span><br><span class="line">        <span class="comment">/**检测IO异常是否能进行重新链接，不可以的话直接抛出该异常*/</span></span><br><span class="line">        <span class="keyword">boolean</span> requestSendStarted = !(e <span class="keyword">instanceof</span> ConnectionShutdownException);</span><br><span class="line">        <span class="keyword">if</span> (!recover(e, streamAllocation, requestSendStarted, request)) <span class="keyword">throw</span> e;</span><br><span class="line">        <span class="comment">/**可以重新连接的话 不必释放资源*/</span></span><br><span class="line">        releaseConnection = <span class="keyword">false</span>;</span><br><span class="line">        <span class="comment">/**如果可以重新链接，跳出本次循环，继续网络请求*/</span></span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// We're throwing an unchecked exception. Release any resources.</span></span><br><span class="line">        <span class="comment">/**最后释放所有资源*/</span></span><br><span class="line">        <span class="keyword">if</span> (releaseConnection) &#123;</span><br><span class="line">          streamAllocation.streamFailed(<span class="keyword">null</span>);</span><br><span class="line">          streamAllocation.release();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// Attach the prior response if it exists. Such responses never have a body.</span></span><br><span class="line">      <span class="comment">/**判断priorResponse是否为空，priorResponse的赋值在方法最后边*/</span></span><br><span class="line">      <span class="keyword">if</span> (priorResponse != <span class="keyword">null</span>) &#123;</span><br><span class="line">        response = response.newBuilder()</span><br><span class="line">            .priorResponse(priorResponse.newBuilder()</span><br><span class="line">                    .body(<span class="keyword">null</span>)</span><br><span class="line">                    .build())</span><br><span class="line">            .build();</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">/**响应码判断，代码执行到这里说明请求已经成功了，但是服务器返回的响应码不一定是200</span></span><br><span class="line"><span class="comment">       * 这里还需要对该请求进行检测，主要是通过响应码进行判断</span></span><br><span class="line"><span class="comment">       */</span></span><br><span class="line">      Request followUp = followUpRequest(response, streamAllocation.route());</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (followUp == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!forWebSocket) &#123;</span><br><span class="line">          streamAllocation.release();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> response;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">/**释放资源*/</span></span><br><span class="line">      closeQuietly(response.body());</span><br><span class="line"></span><br><span class="line">      <span class="comment">/**重试次数判断，大于20次则释放链接并抛出异常*/</span></span><br><span class="line">      <span class="keyword">if</span> (++followUpCount &gt; MAX_FOLLOW_UPS) &#123;</span><br><span class="line">        streamAllocation.release();</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ProtocolException(<span class="string">"Too many follow-up requests: "</span> + followUpCount);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (followUp.body() <span class="keyword">instanceof</span> UnrepeatableRequestBody) &#123;</span><br><span class="line">        streamAllocation.release();</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> HttpRetryException(<span class="string">"Cannot retry streamed HTTP body"</span>, response.code());</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">/** 如果重试的host等发生改变，如代理，重定向等情况，重新实例化StreamAllocation*/</span></span><br><span class="line">      <span class="keyword">if</span> (!sameConnection(response, followUp.url())) &#123;</span><br><span class="line">        streamAllocation.release();</span><br><span class="line">        streamAllocation = <span class="keyword">new</span> StreamAllocation(client.connectionPool(),</span><br><span class="line">            createAddress(followUp.url()), call, eventListener, callStackTrace);</span><br><span class="line">        <span class="keyword">this</span>.streamAllocation = streamAllocation;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (streamAllocation.codec() != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Closing the body of "</span> + response</span><br><span class="line">            + <span class="string">" didn't close its backing stream. Bad interceptor?"</span>);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      request = followUp;</span><br><span class="line">      priorResponse = response;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>该方法里边有个重要的角色初始化工作<strong><code>StreamAllcation</code></strong>，这个类重要性主要体现在<strong>ConnectInterceptor</strong>,后面会详细介绍，右上边代码可以看出，重新建立链接的逻辑判断大部分都是在异常处理当中，<strong><code>IOException</code></strong>和<strong><code>RouteException</code></strong>，IOException是<strong>编译时异常</strong>，需要在编译时期就要捕获或者抛出。<strong>RouteException</strong>是运行时异常，不需要显式的去驳货或者抛出。无论是<code>RouteException</code>还是<code>IOException</code>，再处理是都调用了recover方法进行判断</p>
+<blockquote>
+<p>RouteException异常的重连机制</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Report and attempt to recover from a failure to communicate with a server. Returns true if</span></span><br><span class="line"><span class="comment">   * &#123;<span class="doctag">@code</span> e&#125; is recoverable, or false if the failure is permanent. Requests with a body can only</span></span><br><span class="line"><span class="comment">   * be recovered if the body is buffered or if the failure occurred before the request has been</span></span><br><span class="line"><span class="comment">   * sent.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 不在继续连接的情况：</span></span><br><span class="line"><span class="comment">   * 1. 应用层配置不在连接，默认为true</span></span><br><span class="line"><span class="comment">   * 2. 请求Request出错不能继续使用</span></span><br><span class="line"><span class="comment">   * 3. 是否可以恢复的</span></span><br><span class="line"><span class="comment">   *   3.1、协议错误（ProtocolException）</span></span><br><span class="line"><span class="comment">       3.2、中断异常（InterruptedIOException）</span></span><br><span class="line"><span class="comment">       3.3、SSL握手错误（SSLHandshakeException &amp;&amp; CertificateException）</span></span><br><span class="line"><span class="comment">       3.4、certificate pinning错误（SSLPeerUnverifiedException）</span></span><br><span class="line"><span class="comment">   * 4. 没用更多线路可供选择</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">recover</span><span class="params">(IOException e, StreamAllocation streamAllocation,</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">boolean</span> requestSendStarted, Request userRequest)</span> </span>&#123;</span><br><span class="line">    streamAllocation.streamFailed(e);</span><br><span class="line">    <span class="comment">// 1. 应用层配置不在连接，默认为true</span></span><br><span class="line">    <span class="comment">// The application layer has forbidden retries.</span></span><br><span class="line">    <span class="keyword">if</span> (!client.retryOnConnectionFailure()) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    <span class="comment">// 2. 请求Request出错不能继续使用</span></span><br><span class="line">    <span class="comment">// We can't send the request body again.</span></span><br><span class="line">    <span class="keyword">if</span> (requestSendStarted &amp;&amp; userRequest.body() <span class="keyword">instanceof</span> UnrepeatableRequestBody) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    <span class="comment">// 3.是否可以恢复的,在isRecoverable()方法中会判断注释3.1~3.4的异常</span></span><br><span class="line">    <span class="comment">// This exception is fatal.</span></span><br><span class="line">    <span class="keyword">if</span> (!isRecoverable(e, requestSendStarted)) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    <span class="comment">// 4. 没用更多线路可供选择</span></span><br><span class="line">    <span class="comment">// No more routes to attempt.</span></span><br><span class="line">    <span class="keyword">if</span> (!streamAllocation.hasMoreRoutes()) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// For failure recovery, use the same route selector with a new connection.</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>通过 recover 方法检测该 RouteException 是否能重新连接; 可以重新连接,那么就不要释放连接 <strong>releaseConnection = false;</strong> <code>continue</code>进入下一次循环,进行网络请求; 不可以重新连接就直接走 <strong>finally</strong> 代码块释放连接。 </p>
+<blockquote>
+<p>IOException异常重连机制  </p>
+</blockquote>
+<p>IOException 异常的检测实际上和 RouteException 是一样的,只是传入 recover 方法的第二个参数为 <strong>false</strong> 而已,表示该异常不是 RouteException ,这里就不分析了。</p>
+<blockquote>
+<p>followUpRequest</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Figures out the HTTP request to make in response to receiving &#123;<span class="doctag">@code</span> userResponse&#125;. This will</span></span><br><span class="line"><span class="comment">   * either add authentication headers, follow redirects or handle a client request timeout. If a</span></span><br><span class="line"><span class="comment">   * follow-up is either unnecessary or not applicable, this returns null.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">private</span> Request <span class="title">followUpRequest</span><span class="params">(Response userResponse, Route route)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (userResponse == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException();</span><br><span class="line">    <span class="keyword">int</span> responseCode = userResponse.code();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> String method = userResponse.request().method();</span><br><span class="line">    <span class="keyword">switch</span> (responseCode) &#123;</span><br><span class="line">      <span class="keyword">case</span> HTTP_PROXY_AUTH:</span><br><span class="line">        Proxy selectedProxy = route != <span class="keyword">null</span></span><br><span class="line">            ? route.proxy()</span><br><span class="line">            : client.proxy();</span><br><span class="line">        <span class="keyword">if</span> (selectedProxy.type() != Proxy.Type.HTTP) &#123;</span><br><span class="line">          <span class="keyword">throw</span> <span class="keyword">new</span> ProtocolException(<span class="string">"Received HTTP_PROXY_AUTH (407) code while not using proxy"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> client.proxyAuthenticator().authenticate(route, userResponse);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">case</span> HTTP_UNAUTHORIZED:</span><br><span class="line">        <span class="keyword">return</span> client.authenticator().authenticate(route, userResponse);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">case</span> HTTP_PERM_REDIRECT:</span><br><span class="line">      <span class="keyword">case</span> HTTP_TEMP_REDIRECT:</span><br><span class="line">        <span class="comment">// "If the 307 or 308 status code is received in response to a request other than GET</span></span><br><span class="line">        <span class="comment">// or HEAD, the user agent MUST NOT automatically redirect the request"</span></span><br><span class="line">        <span class="keyword">if</span> (!method.equals(<span class="string">"GET"</span>) &amp;&amp; !method.equals(<span class="string">"HEAD"</span>)) &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// fall-through</span></span><br><span class="line">      <span class="keyword">case</span> HTTP_MULT_CHOICE:</span><br><span class="line">      <span class="keyword">case</span> HTTP_MOVED_PERM:</span><br><span class="line">      <span class="keyword">case</span> HTTP_MOVED_TEMP:</span><br><span class="line">      <span class="keyword">case</span> HTTP_SEE_OTHER:</span><br><span class="line">        <span class="comment">// Does the client allow redirects?</span></span><br><span class="line">        <span class="keyword">if</span> (!client.followRedirects()) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        String location = userResponse.header(<span class="string">"Location"</span>);</span><br><span class="line">        <span class="keyword">if</span> (location == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        HttpUrl url = userResponse.request().url().resolve(location);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Don't follow redirects to unsupported protocols.</span></span><br><span class="line">        <span class="keyword">if</span> (url == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// If configured, don't follow redirects between SSL and non-SSL.</span></span><br><span class="line">        <span class="keyword">boolean</span> sameScheme = url.scheme().equals(userResponse.request().url().scheme());</span><br><span class="line">        <span class="keyword">if</span> (!sameScheme &amp;&amp; !client.followSslRedirects()) <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Most redirects don't include a request body.</span></span><br><span class="line">        Request.Builder requestBuilder = userResponse.request().newBuilder();</span><br><span class="line">        <span class="keyword">if</span> (HttpMethod.permitsRequestBody(method)) &#123;</span><br><span class="line">          <span class="keyword">final</span> <span class="keyword">boolean</span> maintainBody = HttpMethod.redirectsWithBody(method);</span><br><span class="line">          <span class="keyword">if</span> (HttpMethod.redirectsToGet(method)) &#123;</span><br><span class="line">            requestBuilder.method(<span class="string">"GET"</span>, <span class="keyword">null</span>);</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            RequestBody requestBody = maintainBody ? userResponse.request().body() : <span class="keyword">null</span>;</span><br><span class="line">            requestBuilder.method(method, requestBody);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">if</span> (!maintainBody) &#123;</span><br><span class="line">            requestBuilder.removeHeader(<span class="string">"Transfer-Encoding"</span>);</span><br><span class="line">            requestBuilder.removeHeader(<span class="string">"Content-Length"</span>);</span><br><span class="line">            requestBuilder.removeHeader(<span class="string">"Content-Type"</span>);</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// When redirecting across hosts, drop all authentication headers. This</span></span><br><span class="line">        <span class="comment">// is potentially annoying to the application layer since they have no</span></span><br><span class="line">        <span class="comment">// way to retain them.</span></span><br><span class="line">        <span class="keyword">if</span> (!sameConnection(userResponse, url)) &#123;</span><br><span class="line">          requestBuilder.removeHeader(<span class="string">"Authorization"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> requestBuilder.url(url).build();</span><br><span class="line"></span><br><span class="line">      <span class="keyword">case</span> HTTP_CLIENT_TIMEOUT:</span><br><span class="line">        <span class="comment">// 408's are rare in practice, but some servers like HAProxy use this response code. The</span></span><br><span class="line">        <span class="comment">// spec says that we may repeat the request without modifications. Modern browsers also</span></span><br><span class="line">        <span class="comment">// repeat the request (even non-idempotent ones.)</span></span><br><span class="line">        <span class="keyword">if</span> (!client.retryOnConnectionFailure()) &#123;</span><br><span class="line">          <span class="comment">// The application layer has directed us not to retry the request.</span></span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (userResponse.request().body() <span class="keyword">instanceof</span> UnrepeatableRequestBody) &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (userResponse.priorResponse() != <span class="keyword">null</span></span><br><span class="line">            &amp;&amp; userResponse.priorResponse().code() == HTTP_CLIENT_TIMEOUT) &#123;</span><br><span class="line">          <span class="comment">// We attempted to retry and got another timeout. Give up.</span></span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (retryAfter(userResponse, <span class="number">0</span>) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> userResponse.request();</span><br><span class="line"></span><br><span class="line">      <span class="keyword">case</span> HTTP_UNAVAILABLE:</span><br><span class="line">        <span class="keyword">if</span> (userResponse.priorResponse() != <span class="keyword">null</span></span><br><span class="line">            &amp;&amp; userResponse.priorResponse().code() == HTTP_UNAVAILABLE) &#123;</span><br><span class="line">          <span class="comment">// We attempted to retry and got another timeout. Give up.</span></span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (retryAfter(userResponse, Integer.MAX_VALUE) == <span class="number">0</span>) &#123;</span><br><span class="line">          <span class="comment">// specifically received an instruction to retry without delay</span></span><br><span class="line">          <span class="keyword">return</span> userResponse.request();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p><strong>followUpRequest</strong>主要是对响应码进行了检测判断，里边各个响应码对应的数值和意义在<strong>HttpURLConnection</strong>类中都有定义和说明，在这就不赘述了。</p>
+<blockquote>
+<p>重试次数的判断</p>
+</blockquote>
+<p>&emsp;&emsp;在 <code>RetryAndFollowUpInterceptor</code> 内部有一个 <strong>MAX_FOLLOW_UPS</strong> 常量,它表示该请求可以重试多少次,在 OKHTTP 内部中是不能超过 <strong>20</strong> 次,如果超过 20 次,那么就不会再请求了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAX_FOLLOW_UPS = <span class="number">20</span>; </span><br><span class="line"><span class="keyword">if</span> (++followUpCount &gt; MAX_FOLLOW_UPS) &#123; </span><br><span class="line">streamAllocation.release(); </span><br><span class="line"><span class="keyword">throw</span> <span class="keyword">new</span> ProtocolException(<span class="string">"Too many follow-up requests: "</span> + followUpCount); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>&emsp;&emsp;<strong><code>RetryAndFollowUpInterceptor</code></strong>拦截器是最上层的内置拦截器，它的核心功能就是初始化<code>StreamAllocation</code>和判断重试机制的判断。大致业务流程如下:   </p>
+<ol>
+<li>初始化StreamAllocation</li>
+<li>开启循环，执行下一个调用链（拦截器），等待返回结果（Response）</li>
+<li>如果发生错误，判断是否继续请求，否：退出（抛出异常）</li>
+<li>检查响应是否符合要求，是：返回</li>
+<li>关闭响应结果</li>
+<li>判断是否达到最大限制数，是：退出</li>
+<li>检查是否有相同连接，是：释放，重建连接</li>
+<li>重复以上流程</li>
+</ol>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/03/17/2017-03-17-android-okhttp-interceptor-02/">OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
+        <p><span>发布时间:</span>2017-03-17, 09:35:56</p>
+        <p><span>最后更新:</span>2017-03-17, 13:41:18</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/03/17/2017-03-17-android-okhttp-interceptor-02/" title="OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor">http://www.sherlockaza.com/2017/03/17/2017-03-17-android-okhttp-interceptor-02/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2017/03/17/2017-03-17-android-okhttp-interceptor-02/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2018/03/01/2018-03-01-android-crash/">
+                    避免android Crash崩溃闪屏现象的解决方案
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/03/14/2017-03-14-android-okhttp-interceptor-1/">
+                    OkHttp源码阅读(三) —— 拦截器之拦截器链
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#主要功能"><span class="toc-number">2.</span> <span class="toc-text">主要功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码实现"><span class="toc-number">3.</span> <span class="toc-text">代码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#intercpt方法"><span class="toc-number">3.1.</span> <span class="toc-text">intercpt方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+
+    
+        <div class="addthis_sharing_toolbox"></div>
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2017/03/17/2017-03-17-android-okhttp-interceptor-02/" data-title="OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor" data-url="http://www.sherlockaza.com/2017/03/17/2017-03-17-android-okhttp-interceptor-02/"></div>
+    <script>
+        var duoshuoQuery = {short_name:""};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2018/03/01/2018-03-01-android-crash/" title="上一篇: 避免android Crash崩溃闪屏现象的解决方案">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/03/14/2017-03-14-android-okhttp-interceptor-1/" title="下一篇: OkHttp源码阅读(三) —— 拦截器之拦截器链">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/03/2018-03-03-kotlin-note/">Kotlin学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/02/2018-03-02-android-8/">Android8.0适配问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/2018-03-01-android-crash/">避免android Crash崩溃闪屏现象的解决方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/2017-03-17-android-okhttp-interceptor-02/">OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/14/2017-03-14-android-okhttp-interceptor-1/">OkHttp源码阅读(三) —— 拦截器之拦截器链</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/12/2017-03-12-android-okhttp-dispatcher/">OkHttp源码阅读(二)—— Dispatcher任务调度器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/11/2017-03-11-okhttp-source-1/">OkHttp源码阅读（一）-——初识OkHttp</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/2017-03-08-design-builder/">设计模式之Builder模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/2017-03-02-android-https/">HTTPS详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/21/2016-11-21-java-deque/">Java容器之双端队列Deque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/12/2016-11-10-java-stack/">Java容器之栈Stack</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/2016-11-08-java-queue/">Java容器之队列Qeque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/05/2016-11-05-LruCache/">深入剖析LruCache</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/2016-11-03-java-linkedhashmap/">LinkedHashMap原理分析</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2017 夏洛克丶Aza
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        $("a[target=_blank]").removeAttr("target");
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
