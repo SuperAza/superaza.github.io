@@ -23,7 +23,7 @@
 <meta property="og:site_name" content="夏洛克丶Aza">
 <meta property="og:description" content="&amp;emsp;&amp;emsp;上一篇我们了解了OkHttp的拦截器链是如何形成连式结构，并且如何工作的，接下来开始逐个的分析学习OkHttp内置的几个拦截器。首先第一个拦截器:重试和重定向拦截器RetryAndFollowUpInterceptor">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-03-17T05:41:18.187Z">
+<meta property="og:updated_time" content="2018-03-29T05:45:43.489Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor">
 <meta name="twitter:description" content="&amp;emsp;&amp;emsp;上一篇我们了解了OkHttp的拦截器链是如何形成连式结构，并且如何工作的，接下来开始逐个的分析学习OkHttp内置的几个拦截器。首先第一个拦截器:重试和重定向拦截器RetryAndFollowUpInterceptor">
@@ -371,7 +371,7 @@
         <p><span>本文标题:</span><a href="/2017/03/17/2017-03-17-android-okhttp-interceptor-02/">OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
         <p><span>发布时间:</span>2017-03-17, 09:35:56</p>
-        <p><span>最后更新:</span>2017-03-17, 13:41:18</p>
+        <p><span>最后更新:</span>2018-03-29, 13:45:43</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2017/03/17/2017-03-17-android-okhttp-interceptor-02/" title="OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor">http://www.sherlockaza.com/2017/03/17/2017-03-17-android-okhttp-interceptor-02/</a>
             <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2017/03/17/2017-03-17-android-okhttp-interceptor-02/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -387,8 +387,8 @@
     <nav id="article-nav">
         
             <div id="article-nav-newer" class="article-nav-title">
-                <a href="/2018/03/01/2018-03-01-android-crash/">
-                    避免android Crash崩溃闪屏现象的解决方案
+                <a href="/2017/03/18/2017-03-18-android-okhttp-interceptor-03/">
+                    OkHttp源码阅读(五) —— 拦截器之BridgeInterceptor
                 </a>
             </div>
         
@@ -470,7 +470,7 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2018/03/01/2018-03-01-android-crash/" title="上一篇: 避免android Crash崩溃闪屏现象的解决方案">
+            <a href="/2017/03/18/2017-03-18-android-okhttp-interceptor-03/" title="上一篇: OkHttp源码阅读(五) —— 拦截器之BridgeInterceptor">
                 <i class="fa fa-angle-left"></i>
             </a>
         
@@ -484,7 +484,7 @@
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/03/2018-03-03-kotlin-note/">Kotlin学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/02/2018-03-02-android-8/">Android8.0适配问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/2018-03-01-android-crash/">避免android Crash崩溃闪屏现象的解决方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/2017-03-17-android-okhttp-interceptor-02/">OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/14/2017-03-14-android-okhttp-interceptor-1/">OkHttp源码阅读(三) —— 拦截器之拦截器链</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/12/2017-03-12-android-okhttp-dispatcher/">OkHttp源码阅读(二)—— Dispatcher任务调度器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/11/2017-03-11-okhttp-source-1/">OkHttp源码阅读（一）-——初识OkHttp</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/2017-03-08-design-builder/">设计模式之Builder模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/2017-03-02-android-https/">HTTPS详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/21/2016-11-21-java-deque/">Java容器之双端队列Deque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/12/2016-11-10-java-stack/">Java容器之栈Stack</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/2016-11-08-java-queue/">Java容器之队列Qeque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/05/2016-11-05-LruCache/">深入剖析LruCache</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/2016-11-03-java-linkedhashmap/">LinkedHashMap原理分析</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/03/2018-03-03-kotlin-note/">Kotlin学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/02/2018-03-02-android-8/">Android8.0适配问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/2018-03-01-android-crash/">避免android Crash崩溃闪屏现象的解决方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/2017-03-18-android-okhttp-interceptor-03/">OkHttp源码阅读(五) —— 拦截器之BridgeInterceptor</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/2017-03-17-android-okhttp-interceptor-02/">OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/14/2017-03-14-android-okhttp-interceptor-1/">OkHttp源码阅读(三) —— 拦截器之拦截器链</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/12/2017-03-12-android-okhttp-dispatcher/">OkHttp源码阅读(二)—— Dispatcher任务调度器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/11/2017-03-11-okhttp-source-1/">OkHttp源码阅读（一）-——初识OkHttp</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/2017-03-08-design-builder/">设计模式之Builder模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/2017-03-02-android-https/">HTTPS详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/21/2016-11-21-java-deque/">Java容器之双端队列Deque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/12/2016-11-10-java-stack/">Java容器之栈Stack</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/2016-11-08-java-queue/">Java容器之队列Qeque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/05/2016-11-05-LruCache/">深入剖析LruCache</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/2016-11-03-java-linkedhashmap/">LinkedHashMap原理分析</a></li></ul>
 
 
 
