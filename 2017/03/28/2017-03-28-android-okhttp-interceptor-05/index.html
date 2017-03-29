@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+
+    <!--[if lt IE 9]>
+        <style>body {display: none; background: none !important} </style>
+        <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
+    <![endif]-->
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="format-detection" content="telephone=no" />
+<meta name="author" content="夏洛克丶Aza" />
+
+
+
+<meta name="description" content="&amp;emsp;&amp;emsp;Duang！~ Duang！~ Duang！~重磅来袭，OkHttp里个人觉得最重要也是最有特色的角色出现了(因为看的最懵逼),这个拦截器里边的子角色很多，也同样都很重要，最最最最重要的是代码量太TM多了,读这块代码的时候有一句特别经典的话常常出现在我脑海里，那就是“卧槽！这TM什么玩应儿！！！！！”，不过硬骨头也得啃啊，一口啃不动那就一点一点的啃！！">
+<meta name="keywords" content="OkHttp,源码分析">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OkHttp源码阅读(七) —— 拦截器之ConnectInterceptor">
+<meta property="og:url" content="http://www.sherlockaza.com/2017/03/28/2017-03-28-android-okhttp-interceptor-05/index.html">
+<meta property="og:site_name" content="夏洛克丶Aza">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;Duang！~ Duang！~ Duang！~重磅来袭，OkHttp里个人觉得最重要也是最有特色的角色出现了(因为看的最懵逼),这个拦截器里边的子角色很多，也同样都很重要，最最最最重要的是代码量太TM多了,读这块代码的时候有一句特别经典的话常常出现在我脑海里，那就是“卧槽！这TM什么玩应儿！！！！！”，不过硬骨头也得啃啊，一口啃不动那就一点一点的啃！！">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/39956832-931ae1e8-561a-11e8-998e-7ebab7fbe550.jpg">
+<meta property="og:updated_time" content="2017-03-29T10:47:31.170Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OkHttp源码阅读(七) —— 拦截器之ConnectInterceptor">
+<meta name="twitter:description" content="&amp;emsp;&amp;emsp;Duang！~ Duang！~ Duang！~重磅来袭，OkHttp里个人觉得最重要也是最有特色的角色出现了(因为看的最懵逼),这个拦截器里边的子角色很多，也同样都很重要，最最最最重要的是代码量太TM多了,读这块代码的时候有一句特别经典的话常常出现在我脑海里，那就是“卧槽！这TM什么玩应儿！！！！！”，不过硬骨头也得啃啊，一口啃不动那就一点一点的啃！！">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/30682550/39956832-931ae1e8-561a-11e8-998e-7ebab7fbe550.jpg">
+
+<link rel="apple-touch-icon" href= "/apple-touch-icon.png">
+
+
+    <link rel="alternate" href="/atom.xml" title="夏洛克丶Aza" type="application/atom+xml">
+
+
+
+    <link rel="shortcut icon" href="/favicon.png">
+
+
+
+    <link href="//cdn.bootcss.com/animate.css/3.5.1/animate.min.css" rel="stylesheet">
+
+
+
+    <link href="//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.css" rel="stylesheet">
+
+
+
+    <script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+    <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+
+<link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+
+
+<title>OkHttp源码阅读(七) —— 拦截器之ConnectInterceptor | 夏洛克丶Aza</title>
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+<script>
+    var yiliaConfig = {
+        fancybox: true,
+        animate: true,
+        isHome: false,
+        isPost: true,
+        isArchive: false,
+        isTag: false,
+        isCategory: false,
+        fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
+        scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
+        search: true
+    }
+</script>
+
+
+    <script> yiliaConfig.jquery_ui = [false]; </script>
+
+
+
+    <script> yiliaConfig.rootUrl = "\/";</script>
+
+
+
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-56ff76c972fc0cf9"></script>
+
+
+
+
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            <img src="/img/avatar.jpeg" class="animated zoomIn">
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">夏洛克丶Aza</a></h1>
+        </hgroup>
+
+        
+        <p class="header-subtitle">一个被程序猿耽误的厨子</p>
+        
+
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
+        
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/">标签云</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" href="mailto:sherlockaza@yahoo.com" title="Email"></a>
+                            
+                                <a class="fa QQ" href="/334880952" title="QQ"></a>
+                            
+                                <a class="fa 微信" href="/gxin_334880952" title="微信"></a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crash/">Crash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashMap/">HashMap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LruCache/">LruCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/OkHttp/">OkHttp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Queue/">Queue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/加密/">加密</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/基础/">基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/容器/">容器</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/栈/">栈</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/源码分析/">源码分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/缓存/">缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言/">语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/适配/">适配</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/队列/">队列</a></li></ul>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a class="main-nav-link switch-friends-link" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">专注于前端</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">夏洛克丶Aza</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                <img src="/img/avatar.jpeg" class="animated zoomIn">
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">夏洛克丶Aza</a></h1>
+            </hgroup>
+            
+            <p class="header-subtitle">一个被程序猿耽误的厨子</p>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/">标签云</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fa Email" target="_blank" href="mailto:sherlockaza@yahoo.com" title="Email"></a>
+                            
+                                <a class="fa QQ" target="_blank" href="/334880952" title="QQ"></a>
+                            
+                                <a class="fa 微信" target="_blank" href="/gxin_334880952" title="微信"></a>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+    <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
+</nav>
+      <div class="body-wrap"><article id="posts-2017-03-28-android-okhttp-interceptor-05" class="article article-type-posts" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2017/03/28/2017-03-28-android-okhttp-interceptor-05/" class="article-date">
+      <time datetime="2017-03-28T11:20:28.000Z" itemprop="datePublished">2017-03-28</time>
+</a>
+
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      OkHttp源码阅读(七) —— 拦截器之ConnectInterceptor
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Android/">Android</a><a class="article-category-link" href="/categories/Android/源码分析/">源码分析</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OkHttp/">OkHttp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码分析/">源码分析</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>&emsp;&emsp;Duang！~ Duang！~ Duang！~重磅来袭，OkHttp里个人觉得<code>最重要也是最有特色</code>的角色出现了<strong>(因为看的最懵逼)</strong>,这个拦截器里边的子角色很多，也同样都很重要，最最最最重要的是代码量太TM多了,读这块代码的时候有一句特别经典的话常常出现在我脑海里，那就是<strong>“卧槽！这TM什么玩应儿！！！！！”</strong>，不过硬骨头也得啃啊，一口啃不动那就一点一点的啃！！<br><a id="more"></a></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>&emsp;&emsp;在分析ConnectInterceptor之前,先声明几点注意事项，首先这个拦截器里边涉及到知识点和代码太多了，没必要每一行代码都要知道是什么意思，有些类和方法只需要知道它的作用是什么就可以了，可以忽略细节，主要还是把重点放到核心逻辑上，所以下面先预热一些类的定义和作用。</p>
+<ol>
+<li>RealConnetion</li>
+<li>ConnectionPool</li>
+<li>StreamAllocation</li>
+</ol>
+<h2 id="RealConnection"><a href="#RealConnection" class="headerlink" title="RealConnection"></a>RealConnection</h2><p>&emsp;&emsp;从字面上来看RealConnection的意思是真正的链接，没错!RealConnection所做的事情也是与服务器建立通信链接，Realconnection是Connection接口的实现类，在Connction接口定义中，有几个方法 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Connection</span> </span>&#123;</span><br><span class="line">  <span class="comment">/** Returns the route used by this connection. */</span></span><br><span class="line">  <span class="function">Route <span class="title">route</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Returns the socket that this connection is using. Returns an &#123;<span class="doctag">@linkplain</span></span></span><br><span class="line"><span class="comment">   * javax.net.ssl.SSLSocket SSL socket&#125; if this connection is HTTPS. If this is an HTTP/2</span></span><br><span class="line"><span class="comment">   * connection the socket may be shared by multiple concurrent calls.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function">Socket <span class="title">socket</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Returns the TLS handshake used to establish this connection, or null if the connection is not</span></span><br><span class="line"><span class="comment">   * HTTPS.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="meta">@Nullable</span> <span class="function">Handshake <span class="title">handshake</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Returns the protocol negotiated by this connection, or &#123;<span class="doctag">@link</span> Protocol#HTTP_1_1&#125; if no protocol</span></span><br><span class="line"><span class="comment">   * has been negotiated. This method returns &#123;<span class="doctag">@link</span> Protocol#HTTP_1_1&#125; even if the remote peer is</span></span><br><span class="line"><span class="comment">   * using &#123;<span class="doctag">@link</span> Protocol#HTTP_1_0&#125;.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function">Protocol <span class="title">protocol</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上边代码可以看出RealConnection实现该接口后， 就意味着客户端和服务器有了一条通信链路，RealConnetion做了好多事情，包括<strong><code>三次握手</code></strong>、<strong><code>建立普通链接</code></strong>、<strong><code>建立隧道链接</code></strong>、<strong><code>TLS链接</code></strong>、<strong><code>代理</code></strong>等等，而对于Android开发人员来说，这些具体实现细节没有必要研究的很细，如果感兴趣的话可以进一步深入的了解，本人能力有限，暂时放弃深入了解具体实现。不过RealConnection中有些属性和方法的含义是非常有必要了解的。<br>首先先看一下RealConnection这个类的重要属性定义</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**连接池*/</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> ConnectionPool connectionPool;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Route route;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// The fields below are initialized by connect() and never reassigned.</span></span><br><span class="line">  <span class="comment">//下面这些字段，通过connect()方法开始初始化，并且绝对不会再次赋值</span></span><br><span class="line">  <span class="comment">/** The low-level TCP socket. */</span></span><br><span class="line">  <span class="comment">/**底层socket*/</span></span><br><span class="line">  <span class="keyword">private</span> Socket rawSocket;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * The application layer socket. Either an &#123;<span class="doctag">@link</span> SSLSocket&#125; layered over &#123;<span class="doctag">@link</span> #rawSocket&#125;, or</span></span><br><span class="line"><span class="comment">   * &#123;<span class="doctag">@link</span> #rawSocket&#125; itself if this connection does not use SSL.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="comment">/**应用层socket*/</span></span><br><span class="line">  <span class="keyword">private</span> Socket socket;</span><br><span class="line">  <span class="comment">/**握手*/</span></span><br><span class="line">  <span class="keyword">private</span> Handshake handshake;</span><br><span class="line">  <span class="comment">/**协议*/</span></span><br><span class="line">  <span class="keyword">private</span> Protocol protocol;</span><br><span class="line">  <span class="comment">/**http2链接*/</span></span><br><span class="line">  <span class="keyword">private</span> Http2Connection http2Connection;</span><br><span class="line">  <span class="comment">/**通过source和sink，与服务器进行输入输出流交互*/</span></span><br><span class="line">  <span class="keyword">private</span> BufferedSource source;</span><br><span class="line">  <span class="keyword">private</span> BufferedSink sink;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// The fields below track connection state and are guarded by connectionPool.</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/** If true, no new streams can be created on this connection. Once true this is always true. */</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/**下面这个字段是 属于表示链接状态的字段，并且有connectPool统一管理</span></span><br><span class="line"><span class="comment">   * 如果noNewStreams被设为true，则noNewStreams一直为true，不会被改变，并且表示这个链接不会再创新的stream流*/</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">boolean</span> noNewStreams;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">int</span> successCount;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * The maximum number of concurrent streams that can be carried by this connection. If &#123;<span class="doctag">@code</span></span></span><br><span class="line"><span class="comment">   * allocations.size() &lt; allocationLimit&#125; then new streams can be created on this connection.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="comment">/**并发流上限,此链接可以承载最大并发流的限制，如果不超过限制，可以随意增加*/</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">int</span> allocationLimit = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** Current streams carried by this connection. */</span></span><br><span class="line">  <span class="comment">/**统计当前链接上创建了哪些流，相当于计数器*/</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> List&lt;Reference&lt;StreamAllocation&gt;&gt; allocations = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** Nanotime timestamp when &#123;<span class="doctag">@code</span> allocations.size()&#125; reached zero. */</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">long</span> idleAtNanos = Long.MAX_VALUE;</span><br></pre></td></tr></table></figure>
+<p>通过上面的代码基本上可以得出一个结论，</p>
+<ol>
+<li>除了route字段，部分字段都是在connect()方法里边赋值的，并且不会再次赋值</li>
+<li>链接时通过source和sink以流的方式和服务器交互</li>
+<li>noNewStream可以简单理解为它表示该连接不可用。这个值一旦被设为true,则这个conncetion则不会再创建stream.</li>
+<li>allocationLimit是分配流的数量上限，一个connection最大只能支持一个并发</li>
+<li>allocations是关联StreamAllocation,它用来统计在一个连接上建立了哪些流，通过StreamAllocation的acquire方法和release方法可以将一个allcation对象添加到链表或者移除链表，</li>
+</ol>
+<p>对RealConnection的属性有了简单的了解之后，我们来分析分析它的方法，像什么建立三次握手，建立普通链接，建立隧道链接方法什么的，我就不分析，因为没必要研究这么底层，何况我也不怎么明白。主要分析对整体逻辑比较重要的对后边的分析有影响的方法。</p>
+<h3 id="isHealthy方法"><a href="#isHealthy方法" class="headerlink" title="isHealthy方法"></a>isHealthy方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Returns true if this connection is ready to host new streams. */</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isHealthy</span><span class="params">(<span class="keyword">boolean</span> doExtensiveChecks)</span> </span>&#123;</span><br><span class="line">   <span class="keyword">if</span> (socket.isClosed() || socket.isInputShutdown() || socket.isOutputShutdown()) &#123;</span><br><span class="line">     <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (http2Connection != <span class="keyword">null</span>) &#123;</span><br><span class="line">     <span class="keyword">return</span> !http2Connection.isShutdown();</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (doExtensiveChecks) &#123;</span><br><span class="line">     <span class="keyword">try</span> &#123;</span><br><span class="line">       <span class="keyword">int</span> readTimeout = socket.getSoTimeout();</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">         socket.setSoTimeout(<span class="number">1</span>);</span><br><span class="line">         <span class="keyword">if</span> (source.exhausted()) &#123;</span><br><span class="line">           <span class="keyword">return</span> <span class="keyword">false</span>; <span class="comment">// Stream is exhausted; socket is closed.</span></span><br><span class="line">         &#125;</span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">       &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">         socket.setSoTimeout(readTimeout);</span><br><span class="line">       &#125;</span><br><span class="line">     &#125; <span class="keyword">catch</span> (SocketTimeoutException ignored) &#123;</span><br><span class="line">       <span class="comment">// Read timed out; socket is good.</span></span><br><span class="line">     &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">false</span>; <span class="comment">// Couldn't read; socket is closed.</span></span><br><span class="line">     &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>如代码所示,这个方法是用来判断一个链接是否是健康链接，只有健康的链接才能被复用，那么怎么判断一个链接是健康的链接呢？如代码所示要同时满足一下几个要求，该链接才是健康的链接</p>
+<ul>
+<li>socket必须是关闭的状态（socket.isClosed()）</li>
+<li>socket输入流是关闭状态(socket.isInputShutdown())</li>
+<li>socket输出流是关闭状态(socket.isOutputShutdown())</li>
+<li>如果是http2链接，http2也要处于关闭状态(http2Connection.isShutdown())</li>
+</ul>
+<p>剩下的是链接超时时socket的状态判断</p>
+<h3 id="isEligible方法"><a href="#isEligible方法" class="headerlink" title="isEligible方法"></a>isEligible方法</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Returns true if this connection can carry a stream allocation to &#123;<span class="doctag">@code</span> address&#125;. If non-null</span></span><br><span class="line"><span class="comment">  * &#123;<span class="doctag">@code</span> route&#125; is the resolved route for a connection.</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isEligible</span><span class="params">(Address address, @Nullable Route route)</span> </span>&#123;</span><br><span class="line">   <span class="comment">// If this connection is not accepting new streams, we're done.</span></span><br><span class="line">   <span class="keyword">if</span> (allocations.size() &gt;= allocationLimit || noNewStreams) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// If the non-host fields of the address don't overlap, we're done.</span></span><br><span class="line">   <span class="keyword">if</span> (!Internal.instance.equalsNonHost(<span class="keyword">this</span>.route.address(), address)) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// If the host exactly matches, we're done: this connection can carry the address.</span></span><br><span class="line">   <span class="keyword">if</span> (address.url().host().equals(<span class="keyword">this</span>.route().address().url().host())) &#123;</span><br><span class="line">     <span class="keyword">return</span> <span class="keyword">true</span>; <span class="comment">// This connection is a perfect match.</span></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// At this point we don't have a hostname match. But we still be able to carry the request if</span></span><br><span class="line">   <span class="comment">// our connection coalescing requirements are met. See also:</span></span><br><span class="line">   <span class="comment">// https://hpbn.co/optimizing-application-delivery/#eliminate-domain-sharding</span></span><br><span class="line">   <span class="comment">// https://daniel.haxx.se/blog/2016/08/18/http2-connection-coalescing/</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// 1. This connection must be HTTP/2.</span></span><br><span class="line">   <span class="keyword">if</span> (http2Connection == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 2. The routes must share an IP address. This requires us to have a DNS address for both</span></span><br><span class="line">   <span class="comment">// hosts, which only happens after route planning. We can't coalesce connections that use a</span></span><br><span class="line">   <span class="comment">// proxy, since proxies don't tell us the origin server's IP address.</span></span><br><span class="line">   <span class="keyword">if</span> (route == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">   <span class="keyword">if</span> (route.proxy().type() != Proxy.Type.DIRECT) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">   <span class="keyword">if</span> (<span class="keyword">this</span>.route.proxy().type() != Proxy.Type.DIRECT) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">   <span class="keyword">if</span> (!<span class="keyword">this</span>.route.socketAddress().equals(route.socketAddress())) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 3. This connection's server certificate's must cover the new host.</span></span><br><span class="line">   <span class="keyword">if</span> (route.address().hostnameVerifier() != OkHostnameVerifier.INSTANCE) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">   <span class="keyword">if</span> (!supportsUrl(address.url())) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 4. Certificate pinning must match the host.</span></span><br><span class="line">   <span class="keyword">try</span> &#123;</span><br><span class="line">     address.certificatePinner().check(address.url().host(), handshake().peerCertificates());</span><br><span class="line">   &#125; <span class="keyword">catch</span> (SSLPeerUnverifiedException e) &#123;</span><br><span class="line">     <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">true</span>; <span class="comment">// The caller's address can be carried by this connection.</span></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>如上面代码所示，isEligible方法的作用是通过address和route判断当前realConnection是否可以被复用，代码逻辑比较简单，都是一些if-else的判断，大致逻辑判断可以总结以下几点:</p>
+<ul>
+<li>如果链接达到了并发上限，则该链接不能被复用</li>
+<li>通过host域还有route的address逻辑关系，判断该链接是否可以被复用(有些地方不是很清楚)</li>
+</ul>
+<p>最后简单的了解下newCodec方法  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> HttpCodec <span class="title">newCodec</span><span class="params">(OkHttpClient client, Interceptor.Chain chain,</span></span></span><br><span class="line"><span class="function"><span class="params">      StreamAllocation streamAllocation)</span> <span class="keyword">throws</span> SocketException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (http2Connection != <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> Http2Codec(client, chain, streamAllocation, http2Connection);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      socket.setSoTimeout(chain.readTimeoutMillis());</span><br><span class="line">      source.timeout().timeout(chain.readTimeoutMillis(), MILLISECONDS);</span><br><span class="line">      sink.timeout().timeout(chain.writeTimeoutMillis(), MILLISECONDS);</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> Http1Codec(client, streamAllocation, source, sink);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>主要是通过当前是不是HTTP/2来创建一个HttpCodec。HttpCodec的作用其实就是读写流，有时间的童鞋可以仔细研究下。</p>
+<h2 id="ConnectionPool"><a href="#ConnectionPool" class="headerlink" title="ConnectionPool"></a>ConnectionPool</h2><p>&emsp;&emsp;<strong><code>连接池</code></strong>在okhttp中连接池的作用可谓是重中之重，其复用机制很大程度上提高了网络性能，降低了延迟和提升了响应速度，连接池的精髓当然也是在于链接的复用，究竟ConnectionPool怎么复用的链接，在这之前先铺垫一些内容。<br>&emsp;&emsp;我们常常在浏览器开发者工具中或者是客户端网络代码编写的过程经常会看到这样的代码<strong>“keep-alive”</strong>,keep-alive的作用就是让客户端可服务器保持长连接，并且这个链接时可复用的，可为什么链接的复用会提高性能呢？这就要从一个网络请求响应的过程说起了.<br>&emsp;&emsp;首先通常情况下，我们发起一个HTTP请求的时候，开始阶段要先完成TCP的三次握手，然后再传输数据，最后再释放链接，我们知道，在高并发下，如果请求数量很多，或者是同一个客户端发起多次频繁的请求，那么每次的请求都要进行三次握手，最后释放链接这是一个非常消耗性能的操作，所有就引申出了长连接，如图所示  </p>
+<p><img src="https://user-images.githubusercontent.com/30682550/39956832-931ae1e8-561a-11e8-998e-7ebab7fbe550.jpg" width="70%,height=70%"></p>
+<p>如图所示 在timeout空闲时间内，链接时不会关闭的，相同重复的request将复用原先的connection，减少握手的次数，从而提升性能，那么OkHttp是如何做到链接复用的呢？主角登场<strong><code>ConnectionPool</code></strong></p>
+<p>首先简单的看一下ConnectionPool类的注释</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Manages reuse of HTTP and HTTP/2 connections for reduced network latency. HTTP requests that</span></span><br><span class="line"><span class="comment"> * share the same &#123;<span class="doctag">@link</span> Address&#125; may share a &#123;<span class="doctag">@link</span> Connection&#125;. This class implements the policy</span></span><br><span class="line"><span class="comment"> * of which connections to keep open for future use.</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+<p>大致的意思就是管理HTTP和HTTP/2的链接，以便减少网络请求延迟。同一个address将共享同一个connection。该类实现了复用连接的目标。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Background threads are used to cleanup expired connections. There will be at most a single</span></span><br><span class="line"><span class="comment">   * thread running per connection pool. The thread pool executor permits the pool itself to be</span></span><br><span class="line"><span class="comment">   * garbage collected.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="comment">/**这是一个后台线程用于清除过期的链接，一个线程池里最多只能运行一个线程，这个线程池允许被回收*/</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Executor executor = <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">0</span> <span class="comment">/* corePoolSize */</span>,</span><br><span class="line">      Integer.MAX_VALUE <span class="comment">/* maximumPoolSize */</span>, <span class="number">60L</span> <span class="comment">/* keepAliveTime */</span>, TimeUnit.SECONDS,</span><br><span class="line">      <span class="keyword">new</span> SynchronousQueue&lt;Runnable&gt;(), Util.threadFactory(<span class="string">"OkHttp ConnectionPool"</span>, <span class="keyword">true</span>));</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** The maximum number of idle connections for each address. */</span></span><br><span class="line">  <span class="comment">/**每个address的最大空闲连接数*/</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> maxIdleConnections;</span><br><span class="line">  <span class="comment">/**链接保活时间*/</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> keepAliveDurationNs;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Runnable cleanupRunnable = <span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">    <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">      <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">        <span class="keyword">long</span> waitNanos = cleanup(System.nanoTime());</span><br><span class="line">        <span class="keyword">if</span> (waitNanos == -<span class="number">1</span>) <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">if</span> (waitNanos &gt; <span class="number">0</span>) &#123;</span><br><span class="line">          <span class="keyword">long</span> waitMillis = waitNanos / <span class="number">1000000L</span>;</span><br><span class="line">          waitNanos -= (waitMillis * <span class="number">1000000L</span>);</span><br><span class="line">          <span class="keyword">synchronized</span> (ConnectionPool.<span class="keyword">this</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">              ConnectionPool.<span class="keyword">this</span>.wait(waitMillis, (<span class="keyword">int</span>) waitNanos);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException ignored) &#123;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**链接容器，存放链接*/</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> Deque&lt;RealConnection&gt; connections = <span class="keyword">new</span> ArrayDeque&lt;&gt;();</span><br><span class="line">  <span class="comment">/**路由库*/</span></span><br><span class="line">  <span class="keyword">final</span> RouteDatabase routeDatabase = <span class="keyword">new</span> RouteDatabase();</span><br><span class="line">  <span class="keyword">boolean</span> cleanupRunning;</span><br></pre></td></tr></table></figure>
+<p>从上边代码可以了解到，<code>ConnectionPool</code>的核心还是<strong>RealConnection</strong>的容器,控制RealConnection的读取，该容器是顺序容器，不是关联容器，ConnectionPool中使用<strong><code>双端队列</code></strong>来存放RealConnection,而且ConnectionPool对连接池中的最大空闲连接数和保活时间做了控制，<code>maxIdleConnections</code>和<code>keepAliveDurationNs</code>成员分别体现对最大空闲连接数及连接保活时间的控制。这种控制通过匿名的Runnable cleanupRunnable在线程池executor中执行，cleanupRunning是清理的标记位，并在向连接池中添加新的RealConnection触发。</p>
+<p>&emsp;&emsp;ConnectionPool的对象创建是可以OkHttp初始化时用户自己创建，可以指定一些需要的自定义参数，这里就分析下默认情况下ConnectionPool的参数配置，首先构造方法:  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Create a new connection pool with tuning parameters appropriate for a single-user application.</span></span><br><span class="line"><span class="comment">   * The tuning parameters in this pool are subject to change in future OkHttp releases. Currently</span></span><br><span class="line"><span class="comment">   * this pool holds up to 5 idle connections which will be evicted after 5 minutes of inactivity.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">ConnectionPool</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(<span class="number">5</span>, <span class="number">5</span>, TimeUnit.MINUTES);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">ConnectionPool</span><span class="params">(<span class="keyword">int</span> maxIdleConnections, <span class="keyword">long</span> keepAliveDuration, TimeUnit timeUnit)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.maxIdleConnections = maxIdleConnections;</span><br><span class="line">    <span class="keyword">this</span>.keepAliveDurationNs = timeUnit.toNanos(keepAliveDuration);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Put a floor on the keep alive duration, otherwise cleanup will spin loop.</span></span><br><span class="line">    <span class="keyword">if</span> (keepAliveDuration &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"keepAliveDuration &lt;= 0: "</span> + keepAliveDuration);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>方法注释大概的意思是创建一个适用于单个应用程序的新连接池。该连接池的参数将在未来的okhttp中发生改变，目前最多可容乃5个空闲的连接，存活期是5分钟，<code>maxIdleConnections</code>和<code>keepAliveDurationNs</code>是清理淘汰连接的的指标，这里需要说明的是<code>maxIdleConnections</code>是值每个地址上最大的空闲连接数。所以OkHttp只是限制与同一个远程服务器的空闲连接数量，对整体的空闲连接并没有限制。</p>
+<p>接下来就是分析ConnectionPool如何通过<strong>双端队列</strong>进行<code>RealConnection</code>的管理<br>首先看一下put方法:   </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">put</span><span class="params">(RealConnection connection)</span> </span>&#123;</span><br><span class="line"><span class="comment">//断言表达式，put的基本条件是，当前线程是否持有该对象的锁</span></span><br><span class="line">    <span class="keyword">assert</span> (Thread.holdsLock(<span class="keyword">this</span>));</span><br><span class="line">    <span class="keyword">if</span> (!cleanupRunning) &#123;</span><br><span class="line">      cleanupRunning = <span class="keyword">true</span>;</span><br><span class="line">      executor.execute(cleanupRunnable);</span><br><span class="line">    &#125;</span><br><span class="line">    connections.add(connection);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>put方法比较简单，就是异步触发清理任务，然后将连接添加到队列中。重点是怎么清理任务   </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> Runnable cleanupRunnable = <span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">   <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">     <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">       <span class="keyword">long</span> waitNanos = cleanup(System.nanoTime());</span><br><span class="line">       <span class="keyword">if</span> (waitNanos == -<span class="number">1</span>) <span class="keyword">return</span>;</span><br><span class="line">       <span class="keyword">if</span> (waitNanos &gt; <span class="number">0</span>) &#123;</span><br><span class="line">         <span class="keyword">long</span> waitMillis = waitNanos / <span class="number">1000000L</span>;</span><br><span class="line">         waitNanos -= (waitMillis * <span class="number">1000000L</span>);</span><br><span class="line">         <span class="keyword">synchronized</span> (ConnectionPool.<span class="keyword">this</span>) &#123;</span><br><span class="line">           <span class="keyword">try</span> &#123;</span><br><span class="line">             ConnectionPool.<span class="keyword">this</span>.wait(waitMillis, (<span class="keyword">int</span>) waitNanos);</span><br><span class="line">           &#125; <span class="keyword">catch</span> (InterruptedException ignored) &#123;</span><br><span class="line">           &#125;</span><br><span class="line">         &#125;</span><br><span class="line">       &#125;</span><br><span class="line">     &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> &#125;;</span><br></pre></td></tr></table></figure>
+<p>如图开启一个线程循环去<code>cleanup</code>清理，代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">cleanup</span><span class="params">(<span class="keyword">long</span> now)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//正在使用connection数量</span></span><br><span class="line">    <span class="keyword">int</span> inUseConnectionCount = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//空闲的connection数量</span></span><br><span class="line">    <span class="keyword">int</span> idleConnectionCount = <span class="number">0</span>;</span><br><span class="line">    RealConnection longestIdleConnection = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">//最长空闲时间</span></span><br><span class="line">    <span class="keyword">long</span> longestIdleDurationNs = Long.MIN_VALUE;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Find either a connection to evict, or the time that the next eviction is due.</span></span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">      <span class="keyword">for</span> (Iterator&lt;RealConnection&gt; i = connections.iterator(); i.hasNext(); ) &#123;</span><br><span class="line">        RealConnection connection = i.next();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// If the connection is in use, keep searching.</span></span><br><span class="line">        <span class="keyword">if</span> (pruneAndGetAllocationCount(connection, now) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">          inUseConnectionCount++;</span><br><span class="line">          <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        idleConnectionCount++;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// If the connection is ready to be evicted, we're done.</span></span><br><span class="line">        <span class="comment">/**找出空闲时间最长的链接*/</span></span><br><span class="line">        <span class="keyword">long</span> idleDurationNs = now - connection.idleAtNanos;</span><br><span class="line">        <span class="keyword">if</span> (idleDurationNs &gt; longestIdleDurationNs) &#123;</span><br><span class="line">          longestIdleDurationNs = idleDurationNs;</span><br><span class="line">          longestIdleConnection = connection;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">/**最长空闲时间如果超出了保活时间，或者空闲链接个数超过了最大空闲链接个数的话，就要将该链接从队列中移除*/</span></span><br><span class="line">      <span class="keyword">if</span> (longestIdleDurationNs &gt;= <span class="keyword">this</span>.keepAliveDurationNs</span><br><span class="line">          || idleConnectionCount &gt; <span class="keyword">this</span>.maxIdleConnections) &#123;</span><br><span class="line">        <span class="comment">// We've found a connection to evict. Remove it from the list, then close it below (outside</span></span><br><span class="line">        <span class="comment">// of the synchronized block).</span></span><br><span class="line">        connections.remove(longestIdleConnection);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (idleConnectionCount &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// A connection will be ready to evict soon.</span></span><br><span class="line">        <span class="comment">/**不符合清理条件，则返回下次需要执行清理的等待时间，也就是此连接即将到期的时间*/</span></span><br><span class="line">        <span class="keyword">return</span> keepAliveDurationNs - longestIdleDurationNs;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (inUseConnectionCount &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// All connections are in use. It'll be at least the keep alive duration 'til we run again.</span></span><br><span class="line">        <span class="comment">/**执行到这说明已经没有空闲链接了，那么没有空闲的连接，则隔keepAliveDuration(分钟)之后再次执行*/</span></span><br><span class="line">        <span class="keyword">return</span> keepAliveDurationNs;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// No connections, idle or in use.</span></span><br><span class="line">        <span class="comment">//清理结束</span></span><br><span class="line">        cleanupRunning = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//关闭socket链接</span></span><br><span class="line">    closeQuietly(longestIdleConnection.socket());</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Cleanup again immediately.</span></span><br><span class="line">    <span class="comment">//这里是在清理一个空闲时间最长的连接以后会执行到这里，需要立即再次执行清理</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>以上代码流程大致这样，通过for循环查找最长空闲时间的连接以及对应空闲时长，然后判断是否超出最大空闲连接数(maxIdleConnections)或者或者超过最大空闲时间(keepAliveDurationNs)，满足条件就直接清理，不满足条件的话 就需要计算下一次清理时间，主要有两种情况</p>
+<ul>
+<li>有空闲链接则下次清理时间等于<strong>keepAliveDurationNs-longestIdleDurationNs</strong></li>
+<li>如果没有空闲链接则需要下一个周期再清理<strong>keepAliveDurationNs</strong></li>
+</ul>
+<p>综上所述，我们来梳理一下清理任务，清理任务就是异步执行的，遵循两个指标，最大空闲连接数量和最大空闲时长，满足其一则清理空闲时长最大的那个连接，然后循环执行，要么等待一段时间，要么继续清理下一个连接，直到清理所有连接，清理任务才结束，下一次put的时候，如果已经停止的清理任务则会被再次触发</p>
+<p>接下来是<strong><code>connectionBecameIdle</code></strong>方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Notify this pool that &#123;<span class="doctag">@code</span> connection&#125; has become idle. Returns true if the connection has</span></span><br><span class="line"><span class="comment">   * been removed from the pool and should be closed.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">boolean</span> <span class="title">connectionBecameIdle</span><span class="params">(RealConnection connection)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">assert</span> (Thread.holdsLock(<span class="keyword">this</span>));</span><br><span class="line">    <span class="keyword">if</span> (connection.noNewStreams || maxIdleConnections == <span class="number">0</span>) &#123;</span><br><span class="line">      connections.remove(connection);</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      notifyAll(); <span class="comment">// Awake the cleanup thread: we may have exceeded the idle connection limit.</span></span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>该方法主要作用是当有连接空闲时，唤起cleanup线程清洗连接池，connectionBecameIdle标示一个连接处于空闲状态，即没有流任务，那么就需要调用该方法，由ConnectionPool来决定是否需要清理该连接。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Close and remove all idle connections in the pool. */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">evictAll</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    List&lt;RealConnection&gt; evictedConnections = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">      <span class="keyword">for</span> (Iterator&lt;RealConnection&gt; i = connections.iterator(); i.hasNext(); ) &#123;</span><br><span class="line">        RealConnection connection = i.next();</span><br><span class="line">        <span class="keyword">if</span> (connection.allocations.isEmpty()) &#123;</span><br><span class="line">          connection.noNewStreams = <span class="keyword">true</span>;</span><br><span class="line">          evictedConnections.add(connection);</span><br><span class="line">          i.remove();</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (RealConnection connection : evictedConnections) &#123;</span><br><span class="line">      closeQuietly(connection.socket());</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p><strong>evictAll</strong>方法就是关闭所有链接，在这里就不赘述了。</p>
+<p>接下来需要了解下<strong>pruneAndGetAllocationCount</strong>方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Prunes any leaked allocations and then returns the number of remaining live allocations on</span></span><br><span class="line"><span class="comment">   * &#123;<span class="doctag">@code</span> connection&#125;. Allocations are leaked if the connection is tracking them but the</span></span><br><span class="line"><span class="comment">   * application code has abandoned them. Leak detection is imprecise and relies on garbage</span></span><br><span class="line"><span class="comment">   * collection.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">pruneAndGetAllocationCount</span><span class="params">(RealConnection connection, <span class="keyword">long</span> now)</span> </span>&#123;</span><br><span class="line">    List&lt;Reference&lt;StreamAllocation&gt;&gt; references = connection.allocations;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; references.size(); ) &#123;</span><br><span class="line">      Reference&lt;StreamAllocation&gt; reference = references.get(i);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (reference.get() != <span class="keyword">null</span>) &#123;</span><br><span class="line">        i++;</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// We've discovered a leaked allocation. This is an application bug.</span></span><br><span class="line">      StreamAllocation.StreamAllocationReference streamAllocRef =</span><br><span class="line">          (StreamAllocation.StreamAllocationReference) reference;</span><br><span class="line">      String message = <span class="string">"A connection to "</span> + connection.route().address().url()</span><br><span class="line">          + <span class="string">" was leaked. Did you forget to close a response body?"</span>;</span><br><span class="line">      Platform.get().logCloseableLeak(message, streamAllocRef.callStackTrace);</span><br><span class="line"></span><br><span class="line">      references.remove(i);</span><br><span class="line">      connection.noNewStreams = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// If this was the last allocation, the connection is eligible for immediate eviction.</span></span><br><span class="line">      <span class="keyword">if</span> (references.isEmpty()) &#123;</span><br><span class="line">        connection.idleAtNanos = now - keepAliveDurationNs;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> references.size();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>该方法内使用了另一个类叫做<strong> StreamAllocation</strong>,后边会分析到，暂且先了解下该方法的大致功能是什么，详细说明在后边会说到，到时回过头来看这段方法的代码会理解的更透彻，<code>pruneAndGetAllocationCount</code>主要是用来标记泄露连接的。内部通过遍历传入进来的RealConnection的StreamAllocation列表，如果StreamAllocation被使用则接着遍历下一个StreamAllocation。如果StreamAllocation未被使用则从列表中移除，如果列表中为空则说明此连接连接没有引用了，返回0，表示此连接是空闲连接，否则就返回非0表示此连接是活跃连接。</p>
+<p>&emsp;&emsp;说完了put方法，接下来分析get方法，代码如下  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Returns a recycled connection to &#123;<span class="doctag">@code</span> address&#125;, or null if no such connection exists. The</span></span><br><span class="line"><span class="comment">   * route is null if the address has not yet been routed.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="meta">@Nullable</span> <span class="function">RealConnection <span class="title">get</span><span class="params">(Address address, StreamAllocation streamAllocation, Route route)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//断言，判断线程是不是被自己锁住了</span></span><br><span class="line">    <span class="keyword">assert</span> (Thread.holdsLock(<span class="keyword">this</span>));</span><br><span class="line">    <span class="comment">// 遍历已有连接集合</span></span><br><span class="line">    <span class="keyword">for</span> (RealConnection connection : connections) &#123;</span><br><span class="line">      <span class="keyword">if</span> (connection.isEligible(address, route)) &#123;</span><br><span class="line">        <span class="comment">//复用这个连接</span></span><br><span class="line">        streamAllocation.acquire(connection, <span class="keyword">true</span>);</span><br><span class="line">        <span class="comment">//返回这个连接</span></span><br><span class="line">        <span class="keyword">return</span> connection;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>代码很简单，遍历connections 中的所有 RealConnection 寻找同时满足条件的RealConnection。<br>这里同样用到了一个类<code>StreamAllocation</code>，那到底StreamAllocation做了什么事情，我们来深入分析下。</p>
+<h2 id="StreamAllocation"><a href="#StreamAllocation" class="headerlink" title="StreamAllocation"></a>StreamAllocation</h2><p>该类属于核心类，也是相对底层的一个类，在分析这个类之前，需要<code>粗略的</code>了解下两个工具类，如下：  </p>
+<h3 id="HttpCodec"><a href="#HttpCodec" class="headerlink" title="HttpCodec"></a>HttpCodec</h3><p> 在客户端和服务器之间的数据传输都是靠流进行传输的，在OkHttp中HttpCodec的作用就是刘操作，它会将请求的数据序列化之后发送到网络，并将接收的数据反序列化为应用程序方便操作的格式，HttpCodec提供了以下方法:</p>
+<ul>
+<li><strong>writeRequestHeaders</strong> 为发送请求而提供的，写入请求头部。</li>
+<li><strong>createRequestBody</strong> 为发送请求而提供的，创建请求体，以用于发送请求体数据</li>
+<li><strong>finishRequest</strong> 为发送请求而提供的，结束请求发送。</li>
+<li><strong>readResponseHeaders</strong> 为获得响应而提供的，读取响应头部。</li>
+<li><strong>openResponseBody</strong> 为获得响应而提供的，打开请求体，以用于后续获取请求体数据</li>
+<li><strong>cancel</strong> 取消请求执行</li>
+</ul>
+<h3 id="ConnectionSpec"><a href="#ConnectionSpec" class="headerlink" title="ConnectionSpec"></a>ConnectionSpec</h3><p>在OkHttp中，ConnectionSpec用于描述传输HTTP流量的socket连接的配置。对于https请求，这些配置主要包括协商安全连接时要使用的TLS版本号和密码套件，是否支持TLS扩展等。暂且只需要知道大致的作用岂可，因为具体实现我也不是很明白。</p>
+<p>OK，有了上边的铺垫，我们来看一下<code>StreamAllocation</code>的几个核心方法   </p>
+<blockquote>
+<p>newStream</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> HttpCodec <span class="title">newStream</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">      OkHttpClient client, Interceptor.Chain chain, <span class="keyword">boolean</span> doExtensiveHealthChecks)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> connectTimeout = chain.connectTimeoutMillis();</span><br><span class="line">    <span class="keyword">int</span> readTimeout = chain.readTimeoutMillis();</span><br><span class="line">    <span class="keyword">int</span> writeTimeout = chain.writeTimeoutMillis();</span><br><span class="line">    <span class="keyword">int</span> pingIntervalMillis = client.pingIntervalMillis();</span><br><span class="line">    <span class="keyword">boolean</span> connectionRetryEnabled = client.retryOnConnectionFailure();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      RealConnection resultConnection = findHealthyConnection(connectTimeout, readTimeout,</span><br><span class="line">          writeTimeout, pingIntervalMillis, connectionRetryEnabled, doExtensiveHealthChecks);</span><br><span class="line">      HttpCodec resultCodec = resultConnection.newCodec(client, chain, <span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">synchronized</span> (connectionPool) &#123;</span><br><span class="line">        codec = resultCodec;</span><br><span class="line">        <span class="keyword">return</span> resultCodec;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RouteException(e);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>这个方法没什么可说的，里边主要调用了两个重要方法  </p>
+<ul>
+<li>findHealthyConnection获取健康的链接  </li>
+<li>resultConnection.newCodec 创建编解码工具HttpCodec  </li>
+</ul>
+<p>根据 OkHttpClient中的设置，连接超时、读超时、写超时及连接失败是否重试，调用 findHealthyConnection() 完成 连接，即RealConnection 的创建。然后根据HTTP协议的版本创建Http1Codec或Http2Codec。</p>
+<blockquote>
+<p>findHealthyConnection</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Finds a connection and returns it if it is healthy. If it is unhealthy the process is repeated</span></span><br><span class="line"><span class="comment">   * until a healthy connection is found.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">private</span> RealConnection <span class="title">findHealthyConnection</span><span class="params">(<span class="keyword">int</span> connectTimeout, <span class="keyword">int</span> readTimeout,</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">int</span> writeTimeout, <span class="keyword">int</span> pingIntervalMillis, <span class="keyword">boolean</span> connectionRetryEnabled,</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">boolean</span> doExtensiveHealthChecks)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">      RealConnection candidate = findConnection(connectTimeout, readTimeout, writeTimeout,</span><br><span class="line">          pingIntervalMillis, connectionRetryEnabled);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// If this is a brand new connection, we can skip the extensive health checks.</span></span><br><span class="line">      <span class="keyword">synchronized</span> (connectionPool) &#123;</span><br><span class="line">        <span class="keyword">if</span> (candidate.successCount == <span class="number">0</span>) &#123;</span><br><span class="line">          <span class="keyword">return</span> candidate;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// Do a (potentially slow) check to confirm that the pooled connection is still good. If it</span></span><br><span class="line">      <span class="comment">// isn't, take it out of the pool and start again.</span></span><br><span class="line">      <span class="keyword">if</span> (!candidate.isHealthy(doExtensiveHealthChecks)) &#123;</span><br><span class="line">        noNewStreams();</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> candidate;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>首先通过<strong>findConnection</strong>获取到一个链接，如果当前链接成功次数为0代表是<code>新的链接</code>，直接返回；如果不是新连接，要判断当前链接是不是健康链接，如果是 返回，如果不是 继续循环。</p>
+<blockquote>
+<p>findConnection   </p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Returns a connection to host a new stream. This prefers the existing connection if it exists,</span></span><br><span class="line"><span class="comment">   * then the pool, finally building a new connection.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">private</span> RealConnection <span class="title">findConnection</span><span class="params">(<span class="keyword">int</span> connectTimeout, <span class="keyword">int</span> readTimeout, <span class="keyword">int</span> writeTimeout,</span></span></span><br><span class="line"><span class="function"><span class="params">      <span class="keyword">int</span> pingIntervalMillis, <span class="keyword">boolean</span> connectionRetryEnabled)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> foundPooledConnection = <span class="keyword">false</span>;</span><br><span class="line">    RealConnection result = <span class="keyword">null</span>;</span><br><span class="line">    Route selectedRoute = <span class="keyword">null</span>;</span><br><span class="line">    Connection releasedConnection;</span><br><span class="line">    Socket toClose;</span><br><span class="line">    <span class="keyword">synchronized</span> (connectionPool) &#123;</span><br><span class="line">      <span class="keyword">if</span> (released) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"released"</span>);</span><br><span class="line">      <span class="keyword">if</span> (codec != <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"codec != null"</span>);</span><br><span class="line">      <span class="keyword">if</span> (canceled) <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Canceled"</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// Attempt to use an already-allocated connection. We need to be careful here because our</span></span><br><span class="line">      <span class="comment">// already-allocated connection may have been restricted from creating new streams.</span></span><br><span class="line">      <span class="comment">/**尝试获取已经存在的链接*/</span></span><br><span class="line">      releasedConnection = <span class="keyword">this</span>.connection;</span><br><span class="line">      <span class="comment">/**判断这个链接是否满足要求，满足的话就直接使用已经存在的链接*/</span></span><br><span class="line">      toClose = releaseIfNoNewStreams();</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.connection != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// We had an already-allocated connection and it's good.</span></span><br><span class="line">        result = <span class="keyword">this</span>.connection;</span><br><span class="line">        releasedConnection = <span class="keyword">null</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (!reportedAcquired) &#123;</span><br><span class="line">        <span class="comment">// If the connection was never reported acquired, don't report it as released!</span></span><br><span class="line">        releasedConnection = <span class="keyword">null</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">/**如果没有已经存在的链接，就去连接池中获取一个*/</span></span><br><span class="line">      <span class="keyword">if</span> (result == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// Attempt to get a connection from the pool.</span></span><br><span class="line">        Internal.instance.get(connectionPool, address, <span class="keyword">this</span>, <span class="keyword">null</span>);</span><br><span class="line">        <span class="comment">/**获取到了就作为目标链接，后边会以返回值的形式返回*/</span></span><br><span class="line">        <span class="keyword">if</span> (connection != <span class="keyword">null</span>) &#123;</span><br><span class="line">          foundPooledConnection = <span class="keyword">true</span>;</span><br><span class="line">          result = connection;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="comment">/**获取不到就更换路由，更换地址*/</span></span><br><span class="line">          selectedRoute = route;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//关闭资源</span></span><br><span class="line">    closeQuietly(toClose);</span><br><span class="line">    <span class="comment">/**以下是一些监听回调*/</span></span><br><span class="line">    <span class="keyword">if</span> (releasedConnection != <span class="keyword">null</span>) &#123;</span><br><span class="line">      eventListener.connectionReleased(call, releasedConnection);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (foundPooledConnection) &#123;</span><br><span class="line">      eventListener.connectionAcquired(call, result);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (result != <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="comment">// If we found an already-allocated or pooled connection, we're done.</span></span><br><span class="line">      <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If we need a route selection, make one. This is a blocking operation.</span></span><br><span class="line">    <span class="keyword">boolean</span> newRouteSelection = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">if</span> (selectedRoute == <span class="keyword">null</span> &amp;&amp; (routeSelection == <span class="keyword">null</span> || !routeSelection.hasNext())) &#123;</span><br><span class="line">      newRouteSelection = <span class="keyword">true</span>;</span><br><span class="line">      routeSelection = routeSelector.next();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**更换路由一直尝试，直到从连接池中获取到链接*/</span></span><br><span class="line">    <span class="keyword">synchronized</span> (connectionPool) &#123;</span><br><span class="line">      <span class="keyword">if</span> (canceled) <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Canceled"</span>);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (newRouteSelection) &#123;</span><br><span class="line">        <span class="comment">// Now that we have a set of IP addresses, make another attempt at getting a connection from</span></span><br><span class="line">        <span class="comment">// the pool. This could match due to connection coalescing.</span></span><br><span class="line">        List&lt;Route&gt; routes = routeSelection.getAll();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, size = routes.size(); i &lt; size; i++) &#123;</span><br><span class="line">          Route route = routes.get(i);</span><br><span class="line">          Internal.instance.get(connectionPool, address, <span class="keyword">this</span>, route);</span><br><span class="line">          <span class="keyword">if</span> (connection != <span class="keyword">null</span>) &#123;</span><br><span class="line">            foundPooledConnection = <span class="keyword">true</span>;</span><br><span class="line">            result = connection;</span><br><span class="line">            <span class="keyword">this</span>.route = route;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">/**如果从连接池中获取不到可用链接，那么就重新创建一个新的链接*/</span></span><br><span class="line">      <span class="keyword">if</span> (!foundPooledConnection) &#123;</span><br><span class="line">        <span class="keyword">if</span> (selectedRoute == <span class="keyword">null</span>) &#123;</span><br><span class="line">          selectedRoute = routeSelection.next();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Create a connection and assign it to this allocation immediately. This makes it possible</span></span><br><span class="line">        <span class="comment">// for an asynchronous cancel() to interrupt the handshake we're about to do.</span></span><br><span class="line">        route = selectedRoute;</span><br><span class="line">        refusedStreamCount = <span class="number">0</span>;</span><br><span class="line">        result = <span class="keyword">new</span> RealConnection(connectionPool, selectedRoute);</span><br><span class="line">        <span class="comment">/**将新的链接加入到弱引用集合中*/</span></span><br><span class="line">        acquire(result, <span class="keyword">false</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If we found a pooled connection on the 2nd time around, we're done.</span></span><br><span class="line">    <span class="keyword">if</span> (foundPooledConnection) &#123;</span><br><span class="line">      eventListener.connectionAcquired(call, result);</span><br><span class="line">      <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Do TCP + TLS handshakes. This is a blocking operation.</span></span><br><span class="line">    <span class="comment">/**链接握手并更新路由数据库*/</span></span><br><span class="line">    result.connect(connectTimeout, readTimeout, writeTimeout, pingIntervalMillis,</span><br><span class="line">        connectionRetryEnabled, call, eventListener);</span><br><span class="line">    routeDatabase().connected(result.route());</span><br><span class="line"></span><br><span class="line">    Socket socket = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">synchronized</span> (connectionPool) &#123;</span><br><span class="line">      reportedAcquired = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// Pool the connection.</span></span><br><span class="line">      <span class="comment">/**将该简介放到连接池中*/</span></span><br><span class="line">      Internal.instance.put(connectionPool, result);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// If another multiplexed connection to the same address was created concurrently, then</span></span><br><span class="line">      <span class="comment">// release this connection and acquire that one.</span></span><br><span class="line">      <span class="comment">/**如果这个链接被多路复用，那么就同连接池排重一下*/</span></span><br><span class="line">      <span class="keyword">if</span> (result.isMultiplexed()) &#123;</span><br><span class="line">        <span class="comment">/**该socket是被重复使用的socket的*/</span></span><br><span class="line">        socket = Internal.instance.deduplicate(connectionPool, address, <span class="keyword">this</span>);</span><br><span class="line">        result = connection;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">/**如果是重复的socket则关闭socket，不是则socket为nul，什么也不做*/</span></span><br><span class="line">    closeQuietly(socket);</span><br><span class="line"></span><br><span class="line">    eventListener.connectionAcquired(call, result);</span><br><span class="line">    <span class="comment">/**返回链接*/</span></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>这段代码比较长，大致总结如下：</p>
+<ol>
+<li>首先判断是否有已存在的链接，如果有并且是可用状态那么就是用已存在的链接</li>
+<li>如果没有就根据<strong>address</strong>去连接池中获取一个链接，如果有就使用，如果没有就更换路由再次去连接池中获取链接，如果有则直接使用</li>
+<li>如果以上条件都不满足的情况下，直接创建(new)一个新的链接，并且将新的链接RealConnection通过acquire方法关联到<strong>connection.allocations</strong>上</li>
+<li>最后做一个去重的判断如果是重复的socket，则关闭</li>
+</ol>
+<p>以上大致是findConnection大致流程，涉及到了RealConnection的connect方法，有兴趣的童鞋可以继续深入了解下。</p>
+<blockquote>
+<p>acquire和release</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Use this allocation to hold &#123;<span class="doctag">@code</span> connection&#125;. Each call to this must be paired with a call to</span></span><br><span class="line"><span class="comment">   * &#123;<span class="doctag">@link</span> #release&#125; on the same connection.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">acquire</span><span class="params">(RealConnection connection, <span class="keyword">boolean</span> reportedAcquired)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">assert</span> (Thread.holdsLock(connectionPool));</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.connection != <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.connection = connection;</span><br><span class="line">    <span class="keyword">this</span>.reportedAcquired = reportedAcquired;</span><br><span class="line">connection.allocations.add(<span class="keyword">new</span> StreamAllocationReference(<span class="keyword">this</span>, callStackTrace));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/** Remove this allocation from the connection's list of allocations. */</span></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">release</span><span class="params">(RealConnection connection)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, size = connection.allocations.size(); i &lt; size; i++) &#123;</span><br><span class="line">      Reference&lt;StreamAllocation&gt; reference = connection.allocations.get(i);</span><br><span class="line">      <span class="keyword">if</span> (reference.get() == <span class="keyword">this</span>) &#123;</span><br><span class="line">        connection.allocations.remove(i);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>之前提到了RealConnection是通过<code>acquire</code>方法关联到<code>connection.allocations</code>上的，allocations是RealConnection定义的一个StreamAllocation的引用集合<strong>List&lt;Reference<streamallocation>&gt; allocations = new ArrayList&lt;&gt;();</streamallocation></strong><br><strong>StreamAllocationReference</strong> 是一个弱引用，所以在acquire方法调用的时候，实际上相当于connection的引用计数器+1; 反之release 相当于引用计数器-1;<br>以上是StreamAllocation类的一些重要方法分析，剩下一些方法注释都很多，不再赘述了。</p>
+<h2 id="intercept方法"><a href="#intercept方法" class="headerlink" title="intercept方法"></a>intercept方法</h2><p>&emsp;&emsp;有上边一大大大大堆的铺垫之后终于到了<strong>ConnectInterceptor</strong>核心方法intercept分析了，直接代码:  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">ConnectInterceptor</span> <span class="keyword">implements</span> <span class="title">Interceptor</span> </span>&#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">final</span> OkHttpClient client;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="title">ConnectInterceptor</span><span class="params">(OkHttpClient client)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.client = client;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Response <span class="title">intercept</span><span class="params">(Chain chain)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    RealInterceptorChain realChain = (RealInterceptorChain) chain;</span><br><span class="line">    Request request = realChain.request();</span><br><span class="line">    StreamAllocation streamAllocation = realChain.streamAllocation();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// We need the network to satisfy this request. Possibly for validating a conditional GET.</span></span><br><span class="line">    <span class="keyword">boolean</span> doExtensiveHealthChecks = !request.method().equals(<span class="string">"GET"</span>);</span><br><span class="line">    HttpCodec httpCodec = streamAllocation.newStream(client, chain, doExtensiveHealthChecks);</span><br><span class="line">    RealConnection connection = streamAllocation.connection();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> realChain.proceed(request, streamAllocation, httpCodec, connection);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>你没看错，<code>ConnectInterceptor</code>的代码就这么少，重要的几个类上边都有过分析，相信这几行代码都知道什么意思了，我也不再赘述了，接下来有了<strong>streamAllocation</strong>、<strong>httpCodec</strong>、<strong>connection</strong>之后，下一层CallServerInterceptor改如何工作呢？</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>&emsp;&emsp; ConnectInterceptor核心代码比较多，需要消化消化，有许多关于HTTP的基础知识还是需要巩固的，要不然有些代码看起来真的是很费劲，本人就是这方面知识匮乏，后边还需更多努力才行。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2017/03/28/2017-03-28-android-okhttp-interceptor-05/">OkHttp源码阅读(七) —— 拦截器之ConnectInterceptor</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
+        <p><span>发布时间:</span>2017-03-28, 19:20:28</p>
+        <p><span>最后更新:</span>2017-03-29, 18:47:31</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2017/03/28/2017-03-28-android-okhttp-interceptor-05/" title="OkHttp源码阅读(七) —— 拦截器之ConnectInterceptor">http://www.sherlockaza.com/2017/03/28/2017-03-28-android-okhttp-interceptor-05/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2017/03/28/2017-03-28-android-okhttp-interceptor-05/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2018/03/01/2018-03-01-android-crash/">
+                    避免android Crash崩溃闪屏现象的解决方案
+                </a>
+            </div>
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2017/03/23/2017-03-23-android-okhttp-interceptor-04/">
+                    OkHttp源码阅读(六) —— 拦截器之CacheInterceptor
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RealConnection"><span class="toc-number">2.</span> <span class="toc-text">RealConnection</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#isHealthy方法"><span class="toc-number">2.1.</span> <span class="toc-text">isHealthy方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#isEligible方法"><span class="toc-number">2.2.</span> <span class="toc-text">isEligible方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ConnectionPool"><span class="toc-number">3.</span> <span class="toc-text">ConnectionPool</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#StreamAllocation"><span class="toc-number">4.</span> <span class="toc-text">StreamAllocation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#HttpCodec"><span class="toc-number">4.1.</span> <span class="toc-text">HttpCodec</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ConnectionSpec"><span class="toc-number">4.2.</span> <span class="toc-text">ConnectionSpec</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#intercept方法"><span class="toc-number">5.</span> <span class="toc-text">intercept方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li></ol>
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
+    
+<div class="share">
+    
+
+    
+        <div class="addthis_sharing_toolbox"></div>
+    
+</div>
+
+
+
+
+
+
+
+    
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2017/03/28/2017-03-28-android-okhttp-interceptor-05/" data-title="OkHttp源码阅读(七) —— 拦截器之ConnectInterceptor" data-url="http://www.sherlockaza.com/2017/03/28/2017-03-28-android-okhttp-interceptor-05/"></div>
+    <script>
+        var duoshuoQuery = {short_name:""};
+        var loadComment = function(){
+            var d = document, s = d.createElement('script');
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
+            (d.head || d.body).appendChild(s);
+        }
+
+        
+    </script>
+    
+    <script> loadComment(); </script>
+
+</div>
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/2018/03/01/2018-03-01-android-crash/" title="上一篇: 避免android Crash崩溃闪屏现象的解决方案">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2017/03/23/2017-03-23-android-okhttp-interceptor-04/" title="下一篇: OkHttp源码阅读(六) —— 拦截器之CacheInterceptor">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/03/2018-03-03-kotlin-note/">Kotlin学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/02/2018-03-02-android-8/">Android8.0适配问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/2018-03-01-android-crash/">避免android Crash崩溃闪屏现象的解决方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/28/2017-03-28-android-okhttp-interceptor-05/">OkHttp源码阅读(七) —— 拦截器之ConnectInterceptor</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/23/2017-03-23-android-okhttp-interceptor-04/">OkHttp源码阅读(六) —— 拦截器之CacheInterceptor</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/20/2017-03-20-http-cache/">浅析Http中的缓存机制</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/18/2017-03-18-android-okhttp-interceptor-03/">OkHttp源码阅读(五) —— 拦截器之BridgeInterceptor</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/17/2017-03-17-android-okhttp-interceptor-02/">OkHttp源码阅读(四) —— 拦截器之RetryAndFollowUpInterceptor</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/14/2017-03-14-android-okhttp-interceptor-1/">OkHttp源码阅读(三) —— 拦截器之拦截器链</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/12/2017-03-12-android-okhttp-dispatcher/">OkHttp源码阅读(二)—— Dispatcher任务调度器</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/11/2017-03-11-okhttp-source-1/">OkHttp源码阅读（一）-——初识OkHttp</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/2017-03-08-design-builder/">设计模式之Builder模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/2017-03-02-android-https/">HTTPS详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/21/2016-11-21-java-deque/">Java容器之双端队列Deque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/12/2016-11-10-java-stack/">Java容器之栈Stack</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/2016-11-08-java-queue/">Java容器之队列Qeque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/05/2016-11-05-LruCache/">深入剖析LruCache</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/2016-11-03-java-linkedhashmap/">LinkedHashMap原理分析</a></li></ul>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                <i class="fa fa-copyright"></i> 
+                2016-2017 夏洛克丶Aza
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" title="本站到访数"><i class="fa fa-user" aria-hidden="true"></i><span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>| </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit"  title="本页阅读量"><i class="fa fa-eye animated infinite pulse" aria-hidden="true"></i><span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    
+<script data-main="/js/main.js" src="//cdn.bootcss.com/require.js/2.2.0/require.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    // Open in New Window
+    
+        $("a[target=_blank]").removeAttr("target");
+    
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>
