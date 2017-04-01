@@ -15,20 +15,21 @@
 
 
 
-<meta name="description" content="&amp;emsp;&amp;emsp;自从Kotlin被Google声明作为Android的官方开发语言以来，Kotlin备受关注，学习的人群也越来越多，Android和Kotlin混合开发的项目也越来越多，各大互联网公司如Facebook、Square等包括国内的BAT，对自己的开源项目也增加了Kotlin版本，作为一名Android狗，没理由不学习下">
-<meta name="keywords" content="语言,基础">
+<meta name="description" content="&amp;emsp;&amp;emsp;OkHttp的源码阅读终于告一段落，作为一个程序猿一开始对源码阅读真心有点抵触，因为觉得很难，根本看不明白，最后心一横硬着头皮去看，其实你发现源码并没有你想象中那么难理解，但是有些细节的代码还是晦涩难懂，但那些并不能影响你对整体源码的理解，对核心内容理解就可以了。下面是对OkHttp的总结，本人比较懒，图不是我画的，借来用用">
+<meta name="keywords" content="OkHttp,源码分析">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Kotlin学习笔记（一）">
-<meta property="og:url" content="http://www.sherlockaza.com/2018/03/03/2018-03-03-kotlin-note/index.html">
+<meta property="og:title" content="OkHttp源码阅读(九) —— 总结">
+<meta property="og:url" content="http://www.sherlockaza.com/2017/04/01/2017-04-01-android-okhttp-interceptor-07/index.html">
 <meta property="og:site_name" content="夏洛克丶Aza">
-<meta property="og:description" content="&amp;emsp;&amp;emsp;自从Kotlin被Google声明作为Android的官方开发语言以来，Kotlin备受关注，学习的人群也越来越多，Android和Kotlin混合开发的项目也越来越多，各大互联网公司如Facebook、Square等包括国内的BAT，对自己的开源项目也增加了Kotlin版本，作为一名Android狗，没理由不学习下">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;OkHttp的源码阅读终于告一段落，作为一个程序猿一开始对源码阅读真心有点抵触，因为觉得很难，根本看不明白，最后心一横硬着头皮去看，其实你发现源码并没有你想象中那么难理解，但是有些细节的代码还是晦涩难懂，但那些并不能影响你对整体源码的理解，对核心内容理解就可以了。下面是对OkHttp的总结，本人比较懒，图不是我画的，借来用用">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37216322-76a6da78-23f5-11e8-8c2a-461f185e8e94.jpg">
-<meta property="og:updated_time" content="2018-03-11T11:06:27.310Z">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/42203619-ef35074e-7ed1-11e8-9d06-6505e504d1d4.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/42203812-84edbc40-7ed2-11e8-91eb-a1aba2c95a69.png">
+<meta property="og:updated_time" content="2017-04-01T07:58:06.458Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Kotlin学习笔记（一）">
-<meta name="twitter:description" content="&amp;emsp;&amp;emsp;自从Kotlin被Google声明作为Android的官方开发语言以来，Kotlin备受关注，学习的人群也越来越多，Android和Kotlin混合开发的项目也越来越多，各大互联网公司如Facebook、Square等包括国内的BAT，对自己的开源项目也增加了Kotlin版本，作为一名Android狗，没理由不学习下">
-<meta name="twitter:image" content="https://user-images.githubusercontent.com/30682550/37216322-76a6da78-23f5-11e8-8c2a-461f185e8e94.jpg">
+<meta name="twitter:title" content="OkHttp源码阅读(九) —— 总结">
+<meta name="twitter:description" content="&amp;emsp;&amp;emsp;OkHttp的源码阅读终于告一段落，作为一个程序猿一开始对源码阅读真心有点抵触，因为觉得很难，根本看不明白，最后心一横硬着头皮去看，其实你发现源码并没有你想象中那么难理解，但是有些细节的代码还是晦涩难懂，但那些并不能影响你对整体源码的理解，对核心内容理解就可以了。下面是对OkHttp的总结，本人比较懒，图不是我画的，借来用用">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/30682550/42203619-ef35074e-7ed1-11e8-9d06-6505e504d1d4.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -60,7 +61,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>Kotlin学习笔记（一） | 夏洛克丶Aza</title>
+<title>OkHttp源码阅读(九) —— 总结 | 夏洛克丶Aza</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -269,11 +270,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-2018-03-03-kotlin-note" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="posts-2017-04-01-android-okhttp-interceptor-07" class="article article-type-posts" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2018/03/03/2018-03-03-kotlin-note/" class="article-date">
-      <time datetime="2018-03-03T07:04:23.000Z" itemprop="datePublished">2018-03-03</time>
+      <a href="/2017/04/01/2017-04-01-android-okhttp-interceptor-07/" class="article-date">
+      <time datetime="2017-04-01T06:44:45.000Z" itemprop="datePublished">2017-04-01</time>
 </a>
 
 
@@ -288,7 +289,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Kotlin学习笔记（一）
+      OkHttp源码阅读(九) —— 总结
     </h1>
   
 
@@ -297,13 +298,13 @@
       <div class="article-info article-info-post">
         
     <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Kotlin/">Kotlin</a>
+    <a class="article-category-link" href="/categories/Android/">Android</a><a class="article-category-link" href="/categories/Android/源码分析/">源码分析</a>
     </div>
 
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/基础/">基础</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/语言/">语言</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OkHttp/">OkHttp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/源码分析/">源码分析</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -313,24 +314,14 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>&emsp;&emsp;自从<code>Kotlin</code>被<code>Google</code>声明作为Android的<code>官方</code>开发语言以来，Kotlin备受关注，学习的人群也越来越多，Android和Kotlin混合开发的项目也越来越多，各大互联网公司如<code>Facebook</code>、<code>Square</code>等包括国内的<code>BAT</code>，对自己的开源项目也增加了Kotlin版本，作为一名<code>Android狗</code>，没理由不学习下<br><a id="more"></a></p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这是一篇持续更新的博客，会不定期更新学习的内容，记录总结，哎！没办法，脑子笨！看过之后就忘！</p>
-<h2 id="基础语法"><a href="#基础语法" class="headerlink" title="基础语法"></a>基础语法</h2><p>&emsp;&emsp;如果有语言基础的人看kotlin的语法会比较容易理解，一看就能理解是什么意思，只是书写习惯和平时不太一样，尤其是java，但这并不是重点，多写自然就熟练了，我用的IDE是<a href="https://www.jetbrains.com/idea/download/#section=mac" target="_blank" rel="noopener">Intellij IDEA</a>,有许多IDE都可以支持kotlin语言，我就不赘述了</p>
-<h3 id="基本数据类型的声明"><a href="#基本数据类型的声明" class="headerlink" title="基本数据类型的声明"></a>基本数据类型的声明</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">(args: <span class="type">Array</span>&lt;<span class="type">String</span>&gt;)</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> a = <span class="number">10</span>      <span class="comment">//隐式定义</span></span><br><span class="line">    <span class="keyword">var</span> a1:<span class="built_in">Int</span> = <span class="number">10</span>     <span class="comment">//显示的定义类型</span></span><br><span class="line">    <span class="keyword">var</span> b = <span class="string">'A'</span></span><br><span class="line">    <span class="keyword">var</span> b1:<span class="built_in">Char</span> = <span class="string">'A'</span></span><br><span class="line">    <span class="keyword">var</span> c = <span class="number">999999999999</span></span><br><span class="line">    <span class="keyword">var</span> c1:<span class="built_in">Long</span> = <span class="number">99999999999</span></span><br><span class="line">    <span class="keyword">var</span> d = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">var</span> d1:<span class="built_in">Boolean</span> = <span class="literal">true</span></span><br><span class="line">    <span class="keyword">var</span> str = <span class="string">"sherlock"</span></span><br><span class="line">    <span class="keyword">var</span> str1:String = <span class="string">"sherlock"</span></span><br><span class="line">    <span class="keyword">val</span> HOST_URL = <span class="string">"www.sherlockaza.com"</span>      <span class="comment">//常量的定义使用val</span></span><br><span class="line">    <span class="keyword">val</span> HOST_URL1 :String</span><br><span class="line">    HOST_URL1 = <span class="string">"www.sherlockaza.com"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>&emsp;&emsp;Kotlin在定义基本数据类型变量是可以简写<code>var a = 10</code>，甚至连分号都不用写，这属于<code>隐式</code>的定义数据类型，计算机会自动识别出该变量属于什么数据类型，譬如说上边变量a，有可能是<code>Byte</code>类型，也有可能是<code>Int</code>类型，具体是什么类型就看变量a所在方法是需要什么类型.  </p>
-<p>&emsp;&emsp;变量的定义也可以显示的指定一个类型,成为<code>显式</code>定义，譬如说<code>var a:Byte = 10</code>，这种写法就是将a变量定义为Byte类型，我们知道Byte类型的取值范围是<code>-128~127</code>，如果我们这个时候将a重新赋值 <code>a = 1000</code>,这个时候系统就会报错，因为已经定义了a的数据类型是Byte，1000已经超过了Byte的取值范围，所以报错。  </p>
-<p>&emsp;&emsp;除了变量的定义，在日常开发中我们还经常使用常量，如上个例子的<code>var HOST_URL = xxx</code>，常量一旦被定义赋值就不可以被更改，这个和Java中的final关键字类似，已经申请了一块内存空间并赋值后便不可进行更改</p>
-<h3 id="数据的比较"><a href="#数据的比较" class="headerlink" title="数据的比较"></a>数据的比较</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">(args: <span class="type">Array</span>&lt;<span class="type">String</span>&gt;)</span></span> &#123;</span><br><span class="line">    println(checkInt(<span class="number">1</span>,<span class="number">2</span>))</span><br><span class="line">    <span class="keyword">var</span> a = <span class="string">"abc"</span></span><br><span class="line">    <span class="keyword">var</span> b = <span class="string">"abc"</span></span><br><span class="line">    checkString(a,b)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span>  <span class="title">checkInt</span><span class="params">(x:<span class="type">Int</span>, y:<span class="type">Int</span>)</span></span>: String &#123;</span><br><span class="line">    <span class="keyword">if</span> (x &gt; y) <span class="keyword">return</span> <span class="string">"x&gt;y"</span> <span class="keyword">else</span> <span class="keyword">return</span> <span class="string">"x&lt;y"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">checkString</span><span class="params">(s1:<span class="type">String</span>, s2:<span class="type">String</span>)</span></span>&#123;</span><br><span class="line">    println(s1 == s2)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Kotlin在方法定义参数和返回值的时候和Java有些不同，返回值是定义在后边，用“：”分开，其他的if…else 逻辑和写法和类似，基本数据类型的比较和java也没什么区别，唯独String字符串类型不一样，以上例子输出的结果是</p>
-<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x&lt;y</span><br><span class="line"><span class="literal">true</span></span><br></pre></td></tr></table></figure>
-<p>我们可以看到第二个函数返回的是<code>true</code>，在Java中 <code>s1 == s2</code>判断的是<code>内存地址</code>是否相等，而并不是值相等，在Kotlin语法中 字符串的<code>==</code> 和<code>equals</code>一样，判断的是值是否相等</p>
-<h3 id="空值的处理"><a href="#空值的处理" class="headerlink" title="空值的处理"></a>空值的处理</h3><p>对于空值的处理，Kotlin在语法定义阶段就做了处理，如下图所示：</p>
-<p><img src="https://user-images.githubusercontent.com/30682550/37216322-76a6da78-23f5-11e8-8c2a-461f185e8e94.jpg" width="30%" height="50%"><br>箭头表明的地方系统提示错误(Null can not be a value of a non-null type String)，无法编译通过,如何才能让方法可以接受空值的参数呢，如图中方法strTest2参数<code>str: String?</code>，在参数的定义后边加上一个问号？，其含义就是该参数可以传null，我们可以看下strTest2测 试运行结果  </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">null</span>空值测试</span><br></pre></td></tr></table></figure>
-<h3 id="when表达式"><a href="#when表达式" class="headerlink" title="when表达式"></a>when表达式</h3><p>&emsp;&emsp;when表达式和java中的switch语句类似，但是他要比switch强大的多</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">fun <span class="title">main</span><span class="params">(args: Array&lt;String&gt;)</span> </span>&#123;</span><br><span class="line">    test1(<span class="number">1</span>)</span><br><span class="line">    println(test2(<span class="number">1</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">fun <span class="title">test1</span><span class="params">(num :Int)</span></span>&#123;</span><br><span class="line">    when(num)&#123;</span><br><span class="line">        <span class="number">1</span> -&gt; println(<span class="string">"A"</span>)</span><br><span class="line">        <span class="number">2</span> -&gt; println(<span class="string">"B"</span>)</span><br><span class="line">        <span class="number">3</span> -&gt; println(<span class="string">"C"</span>)</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 简单写法</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function">fun <span class="title">test2</span><span class="params">(num : Int)</span> : String</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> when(num)&#123;</span><br><span class="line">        <span class="number">1</span> -&gt; <span class="string">"A"</span></span><br><span class="line">        <span class="number">2</span> -&gt; <span class="string">"B"</span></span><br><span class="line">        <span class="number">3</span> -&gt; <span class="string">"C"</span></span><br><span class="line">        <span class="keyword">else</span> -&gt;<span class="string">"D"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>以上代码的运行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">A</span><br><span class="line">A</span><br></pre></td></tr></table></figure></p>
-<h3 id="Loop和Range"><a href="#Loop和Range" class="headerlink" title="Loop和Range"></a>Loop和Range</h3><p>首先认识下开区间和闭区间，这个和java类似，(a,b)这属于开区间,开区间不包括边缘值，[a,b]闭区间，闭区间包括边缘值，还有一个关键字until 代表的是左闭右开[a,b)</p>
+        <p>&emsp;&emsp;OkHttp的源码阅读终于告一段落，作为一个程序猿一开始对源码阅读真心有点抵触，因为觉得很难，根本看不明白，最后心一横硬着头皮去看，其实你发现源码并没有你想象中那么难理解，但是有些细节的代码还是晦涩难懂，但那些并不能影响你对整体源码的理解，对核心内容理解就可以了。下面是对OkHttp的总结，本人比较懒，图不是我画的，借来用用<br><a id="more"></a></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><p>OkHttp的网络请求整体接口图<br><img src="https://user-images.githubusercontent.com/30682550/42203619-ef35074e-7ed1-11e8-9d06-6505e504d1d4.png" width="80%" height="80%"></p>
+</li>
+<li><p>OkHttp请求流程图<br><img src="https://user-images.githubusercontent.com/30682550/42203812-84edbc40-7ed2-11e8-91eb-a1aba2c95a69.png" width="80%" height="80%"></p>
+</li>
+</ul>
+<p>完事！收工！</p>
 
       
     </div>
@@ -339,13 +330,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2018/03/03/2018-03-03-kotlin-note/">Kotlin学习笔记（一）</a></p>
+        <p><span>本文标题:</span><a href="/2017/04/01/2017-04-01-android-okhttp-interceptor-07/">OkHttp源码阅读(九) —— 总结</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
-        <p><span>发布时间:</span>2018-03-03, 15:04:23</p>
-        <p><span>最后更新:</span>2018-03-11, 19:06:27</p>
+        <p><span>发布时间:</span>2017-04-01, 14:44:45</p>
+        <p><span>最后更新:</span>2017-04-01, 15:58:06</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2018/03/03/2018-03-03-kotlin-note/" title="Kotlin学习笔记（一）">http://www.sherlockaza.com/2018/03/03/2018-03-03-kotlin-note/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2018/03/03/2018-03-03-kotlin-note/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2017/04/01/2017-04-01-android-okhttp-interceptor-07/" title="OkHttp源码阅读(九) —— 总结">http://www.sherlockaza.com/2017/04/01/2017-04-01-android-okhttp-interceptor-07/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2017/04/01/2017-04-01-android-okhttp-interceptor-07/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -357,10 +348,16 @@
 
     <nav id="article-nav">
         
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="/2018/03/01/2018-03-01-android-crash/">
+                    避免android Crash崩溃闪屏现象的解决方案
+                </a>
+            </div>
+        
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="/2018/03/02/2018-03-02-android-8/">
-                    Android8.0适配问题
+                <a href="/2017/03/31/2017-03-31-android-okhttp-interceptor-06/">
+                    OkHttp源码阅读(八) —— 拦截器之CallServerInterceptor
                 </a>
             </div>
         
@@ -372,7 +369,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础语法"><span class="toc-number">2.</span> <span class="toc-text">基础语法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本数据类型的声明"><span class="toc-number">2.1.</span> <span class="toc-text">基本数据类型的声明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据的比较"><span class="toc-number">2.2.</span> <span class="toc-text">数据的比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#空值的处理"><span class="toc-number">2.3.</span> <span class="toc-text">空值的处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#when表达式"><span class="toc-number">2.4.</span> <span class="toc-text">when表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Loop和Range"><span class="toc-number">2.5.</span> <span class="toc-text">Loop和Range</span></a></li></ol></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">1.</span> <span class="toc-text">总结</span></a></li></ol>
         
     </div>
     <style>
@@ -412,7 +409,7 @@
     
       <div class="duoshuo" id="comments">
     <div id="comment-box" ></div>
-    <div class="ds-thread" id="ds-thread" data-thread-key="2018/03/03/2018-03-03-kotlin-note/" data-title="Kotlin学习笔记（一）" data-url="http://www.sherlockaza.com/2018/03/03/2018-03-03-kotlin-note/"></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2017/04/01/2017-04-01-android-okhttp-interceptor-07/" data-title="OkHttp源码阅读(九) —— 总结" data-url="http://www.sherlockaza.com/2017/04/01/2017-04-01-android-okhttp-interceptor-07/"></div>
     <script>
         var duoshuoQuery = {short_name:""};
         var loadComment = function(){
@@ -435,13 +432,15 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+            <a href="/2018/03/01/2018-03-01-android-crash/" title="上一篇: 避免android Crash崩溃闪屏现象的解决方案">
+                <i class="fa fa-angle-left"></i>
+            </a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/2018/03/02/2018-03-02-android-8/" title="下一篇: Android8.0适配问题">
+            <a href="/2017/03/31/2017-03-31-android-okhttp-interceptor-06/" title="下一篇: OkHttp源码阅读(八) —— 拦截器之CallServerInterceptor">
                 <i class="fa fa-angle-right"></i>
             </a>
         
