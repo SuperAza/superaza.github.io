@@ -20,7 +20,7 @@
 <meta property="og:url" content="http://yoursite.com/tags/index.html">
 <meta property="og:site_name" content="夏洛克丶Aza">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-01T07:19:54.000Z">
+<meta property="og:updated_time" content="2018-03-01T08:12:05.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分类和标签">
 
@@ -70,7 +70,7 @@
         isCategory: false,
         fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
         scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
-        search: 
+        search: true
     }
 </script>
 
@@ -106,6 +106,13 @@
         <p class="header-subtitle">一个被程序猿耽误的厨子</p>
         
 
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
         
 
 
@@ -156,8 +163,6 @@
                 <section class="switch-part switch-part1">
                     <nav class="header-menu">
                         <ul>
-                        
-                            <li><a href="/">主页</a></li>
                         
                             <li><a href="/archives/">所有文章</a></li>
                         
@@ -233,8 +238,6 @@
             
             <nav class="header-menu">
                 <ul>
-                
-                    <li><a href="/">主页</a></li>
                 
                     <li><a href="/archives/">所有文章</a></li>
                 
@@ -405,27 +408,24 @@
 
 
     
-        <section id="comments">
-    <style> aside.comment-bar { margin: auto 30px; }</style>
-    <div id="disqus_thread"></div>
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="tags/index.html" data-title="分类和标签" data-url="http://yoursite.com/tags/index.html"></div>
     <script>
-        var disqus_config = function(){
-            this.page.url = 'http://yoursite.com/tags/index.html';
-            this.page.identifier = 'tags/index.html';
-        };
+        var duoshuoQuery = {short_name:""};
         var loadComment = function(){
             var d = document, s = d.createElement('script');
-            s.src = '//.disqus.com/embed.js';
-            s.setAttribute('data-timestamp', +new Date());
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
             (d.head || d.body).appendChild(s);
         }
+
+        
     </script>
     
     <script> loadComment(); </script>
 
-</section>
-
-
+</div>
     
 
 
@@ -433,6 +433,8 @@
 
 
     <script>
+        
+            yiliaConfig.fancybox = false;
         
     </script>
 </div>
@@ -492,6 +494,27 @@
 
 
 
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
 <div class="scroll" id="scroll">
     <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
     <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
@@ -502,8 +525,8 @@
     
         var oOpenInNew = {
             
-            
-            
+             title: "a.article-title, .article-more-link a", 
+             post: ".article-entry a[href], .copyright a[href]", 
              tags: ".article-tag a", 
              categories: ".article-category a, a.tag-list-link", 
              articleNav: "#article-nav a, #post-nav-button a", 

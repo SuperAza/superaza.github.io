@@ -74,7 +74,7 @@
         isCategory: false,
         fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
         scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
-        search: 
+        search: true
     }
 </script>
 
@@ -110,6 +110,13 @@
         <p class="header-subtitle">一个被程序猿耽误的厨子</p>
         
 
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
         
 
 
@@ -160,8 +167,6 @@
                 <section class="switch-part switch-part1">
                     <nav class="header-menu">
                         <ul>
-                        
-                            <li><a href="/">主页</a></li>
                         
                             <li><a href="/archives/">所有文章</a></li>
                         
@@ -238,8 +243,6 @@
             <nav class="header-menu">
                 <ul>
                 
-                    <li><a href="/">主页</a></li>
-                
                     <li><a href="/archives/">所有文章</a></li>
                 
                     <li><a href="/tags/">标签云</a></li>
@@ -295,7 +298,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>了看来极乐空间昆仑决埃里克建设路口建档立卡就圣诞节快乐</p>
+              <p>&emsp;&emsp;作为移动端开发最大的bug是什么？崩溃！！！ 崩溃的成本是<code>很大的！！！</code>，不仅会影响用户的留存，同时也能体现程序猿思维的全面，如果你写的程序总是Crash，那领导内心也是崩溃的，最主要的是你离被开不远了！那么怎么避免Crash呢？<br>
           
       
     </div>
@@ -388,6 +391,27 @@
 
 
 
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
 <div class="scroll" id="scroll">
     <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
     <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
@@ -398,8 +422,8 @@
     
         var oOpenInNew = {
             
-            
-            
+             title: "a.article-title, .article-more-link a", 
+             post: ".article-entry a[href], .copyright a[href]", 
              tags: ".article-tag a", 
              categories: ".article-category a, a.tag-list-link", 
              articleNav: "#article-nav a, #post-nav-button a", 

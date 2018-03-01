@@ -15,18 +15,18 @@
 
 
 
-<meta name="description" content="了看来极乐空间昆仑决埃里克建设路口建档立卡就圣诞节快乐">
+<meta name="description" content="&amp;emsp;&amp;emsp;作为移动端开发最大的bug是什么？崩溃！！！ 崩溃的成本是很大的！！！，不仅会影响用户的留存，同时也能体现程序猿思维的全面，如果你写的程序总是Crash，那领导内心也是崩溃的，最主要的是你离被开不远了！那么怎么避免Crash呢？">
 <meta name="keywords" content="Android,Crash">
 <meta property="og:type" content="article">
 <meta property="og:title" content="避免android Crash崩溃闪屏现象的解决方案">
 <meta property="og:url" content="http://yoursite.com/2018/03/01/2018-03-01-android-crash/index.html">
 <meta property="og:site_name" content="夏洛克丶Aza">
-<meta property="og:description" content="了看来极乐空间昆仑决埃里克建设路口建档立卡就圣诞节快乐">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;作为移动端开发最大的bug是什么？崩溃！！！ 崩溃的成本是很大的！！！，不仅会影响用户的留存，同时也能体现程序猿思维的全面，如果你写的程序总是Crash，那领导内心也是崩溃的，最主要的是你离被开不远了！那么怎么避免Crash呢？">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-01T07:48:17.000Z">
+<meta property="og:updated_time" content="2018-03-01T15:03:58.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="避免android Crash崩溃闪屏现象的解决方案">
-<meta name="twitter:description" content="了看来极乐空间昆仑决埃里克建设路口建档立卡就圣诞节快乐">
+<meta name="twitter:description" content="&amp;emsp;&amp;emsp;作为移动端开发最大的bug是什么？崩溃！！！ 崩溃的成本是很大的！！！，不仅会影响用户的留存，同时也能体现程序猿思维的全面，如果你写的程序总是Crash，那领导内心也是崩溃的，最主要的是你离被开不远了！那么怎么避免Crash呢？">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -74,7 +74,7 @@
         isCategory: false,
         fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
         scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
-        search: 
+        search: true
     }
 </script>
 
@@ -110,6 +110,13 @@
         <p class="header-subtitle">一个被程序猿耽误的厨子</p>
         
 
+        
+            <form id="search-form">
+            <input type="text" id="local-search-input" name="q" placeholder="search..." class="search form-control" autocomplete="off" autocorrect="off" searchonload="false" />
+            <i class="fa fa-times" onclick="resetSearch()"></i>
+            </form>
+            <div id="local-search-result"></div>
+            <p class='no-result'>No results found <i class='fa fa-spinner fa-pulse'></i></p>
         
 
 
@@ -160,8 +167,6 @@
                 <section class="switch-part switch-part1">
                     <nav class="header-menu">
                         <ul>
-                        
-                            <li><a href="/">主页</a></li>
                         
                             <li><a href="/archives/">所有文章</a></li>
                         
@@ -238,8 +243,6 @@
             <nav class="header-menu">
                 <ul>
                 
-                    <li><a href="/">主页</a></li>
-                
                     <li><a href="/archives/">所有文章</a></li>
                 
                     <li><a href="/tags/">标签云</a></li>
@@ -304,8 +307,57 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>了看来极乐空间昆仑决埃里克建设路口建档立卡就圣诞节快乐</p>
-<a id="more"></a>
+        <p>&emsp;&emsp;作为移动端开发最大的bug是什么？崩溃！！！ 崩溃的成本是<code>很大的！！！</code>，不仅会影响用户的留存，同时也能体现程序猿思维的全面，如果你写的程序总是Crash，那领导内心也是崩溃的，最主要的是你离被开不远了！那么怎么避免Crash呢？<br><a id="more"></a></p>
+<h2 id="为什么会Crash？"><a href="#为什么会Crash？" class="headerlink" title="为什么会Crash？"></a>为什么会Crash？</h2><p>&emsp;&emsp;常见的Android异常分为两大类，一类是Java Exception异常,一类是Nativie Signal异常，对于一些游戏开发Unity、Cocos等出现的C#、JavaScript等异常不做讨论。</p>
+<h3 id="Exception的分类以及捕获"><a href="#Exception的分类以及捕获" class="headerlink" title="Exception的分类以及捕获"></a>Exception的分类以及捕获</h3><p>&emsp;&emsp;Java的异常可以分为两类：Checked Exception和UnChecked Exception。所有RuntimeException类及其子类的实例被称为Runtime异常，即UnChecked Exception，不是RuntimeException类及其子类的异常实例则被称为Checked Exception。  </p>
+<p>&emsp;&emsp;Checked异常又称为编译时异常，即在编译阶段被处理的异常。编译器会强制程序处理所有的Checked异常，也就是用try…catch显式的捕获并处理，因为Java认为这类异常都是可以被处理（修复）的。在Java API文档中，方法说明时，都会添加是否throw某个exception，这个exception就是Checked异常。如果没有try…catch这个异常，则编译出错，错误提示类似于“Unhandled<br>exception type xxxxx”。</p>
+<blockquote>
+<p>该类异常捕获的流程是:  </p>
+</blockquote>
+<ul>
+<li>执行try块中的代码出现异常，系统会自动生成一个异常对象，并将该异常对象提交给Java运行环境，这个就是异常抛出（throw）阶段  </li>
+<li>当Java运行环境收到异常对象时，会寻找最近的能够处理该异常对象的catch块，找到之后把该异常对象交给catch块处理，这个就是异常捕获（catch）阶段.   </li>
+</ul>
+<p>&emsp;&emsp;UnChecked异常又称为运行时异常，即Runtime-Exception，最常见的莫过于NullPointerException。UnChecked异常发生时，由于没有相应的try…catch处理该异常对象，所以Java运行环境将会终止，程序将退出，也就是我们所说的Crash。当然，你可能会说，那我们把这些异常也try…catch住不就行了。理论上确实是可以的，但有两点会导致这种方案不可行：  </p>
+<ul>
+<li>无法将所有的代码都加上try…catch，这样对代码的效率和可读性将是毁灭性的</li>
+<li>UnChecked异常通常都是较为严重的异常，或者说已经破坏了运行环境的。比如内存地址，即使我们try…catch住了，也不能明确知道如何处理该异常，才能保证程序接下来的运行是正确的。  </li>
+</ul>
+<p>&emsp;&emsp;在Thread ApI中提供了<code>UncaughtExceptionHandler</code>，它能检测出某个线程由于未捕获的异常而终结的情况，然后开发者可以对未捕获异常进行善后处理，例如回收一些系统资源，或者没有关闭当前的连接等等。<br><code>Thread.UncaughtExceptionHandler</code>是一个接口，它提供如下的方法，让我们自定义异常处理程序。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">interface</span> <span class="title">UncaughtExceptionHandler</span> </span>&#123;</span><br><span class="line">       <span class="function"><span class="keyword">void</span> <span class="title">uncaughtException</span><span class="params">(Thread thread, Throwable ex)</span></span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;&emsp;在任何线程中，都可以通过<code>setDefaultUncaughtExceptionHandler</code>来设置handler，但在Android应用程序中，全局的<code>Application</code>和<code>Activity</code>、<code>Service</code>都同属于UI主线程，线程名称默认为“main”。所以，在Application中应该为UI主线程添加<code>UncaughtExceptionHandler</code>，这样整个程序中的Activity、Service中出现的UncaughtException事件都可以被处理。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">UncaughtHandler</span> <span class="keyword">implements</span> <span class="title">Thread</span>.<span class="title">UncaughtExceptionHandler</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">uncaughtException</span><span class="params">(Thread t, Throwable e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// Don't re-enter -- avoid infinite loops if crash-reporting crashes.</span></span><br><span class="line">            <span class="keyword">if</span> (mCrashing) <span class="keyword">return</span>;</span><br><span class="line">            mCrashing = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (mApplicationObject == <span class="keyword">null</span>) &#123;</span><br><span class="line">                Clog_e(TAG, <span class="string">"*** FATAL EXCEPTION IN SYSTEM PROCESS: "</span> + t.getName(), e);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//打印进程的crash信息</span></span><br><span class="line">                .............</span><br><span class="line">            &#125;</span><br><span class="line">            .............</span><br><span class="line">            <span class="comment">// Bring up crash dialog, wait for it to be dismissed</span></span><br><span class="line">            <span class="comment">//调用AMS的接口，进行处理</span></span><br><span class="line">            ActivityManagerNative.getDefault().handleApplicationCrash(</span><br><span class="line">                    mApplicationObject, <span class="keyword">new</span> ApplicationErrorReport.CrashInfo(e));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Throwable t2) &#123;</span><br><span class="line">            <span class="keyword">if</span> (t2 <span class="keyword">instanceof</span> DeadObjectException) &#123;</span><br><span class="line">                <span class="comment">// System process is dead; ignore</span></span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    Clog_e(TAG, <span class="string">"Error reporting crash"</span>, t2);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Throwable t3) &#123;</span><br><span class="line">                    <span class="comment">// Even Clog_e() fails!  Oh well.</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// Try everything to make sure this process goes away.</span></span><br><span class="line">            <span class="comment">//crash的最后，会杀死进程</span></span><br><span class="line">            Process.killProcess(Process.myPid());</span><br><span class="line">            <span class="comment">//并exit</span></span><br><span class="line">            System.exit(<span class="number">10</span>);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>从代码来看，UncaughtHandler对异常的处理流程比较清晰，基本上就是:</p>
+<ol>
+<li>记录log信息;</li>
+<li>调用AMS的接口进行一些处理;</li>
+<li>杀死出现crash的进程;  </li>
+</ol>
+<blockquote>
+<p>通过以下方法，我们可以给应用设置我们自定义的<code>UncaughtExceptionHandler</code>  </p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Thread.setDefaultUncaughtExceptionHandler(<span class="keyword">new</span> Thread.UncaughtExceptionHandler() &#123;</span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">uncaughtException</span><span class="params">(Thread t, Throwable e)</span> </span>&#123;</span><br><span class="line">       Log.e(TAG,e);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>这个时候系统默认的杀死应用进程的UncaughtExceptionHandler不会再生效。子线程发生了未捕获异常不会导致Crash（子线程被终止了，主线程还在运行），主线程发生了未捕获异常会导致<code>ANR</code>（主线程已经被终止了）。</p>
+<h2 id="android应用启动基本流程"><a href="#android应用启动基本流程" class="headerlink" title="android应用启动基本流程"></a>android应用启动基本流程</h2><p>&emsp;&emsp;每一个进程的主线程的执行都在一个<code>ActivityThread</code>实例里，其中也包含了四大组件的启动和销毁及相关生命周期方法在主线程的执行逻辑。</p>
+<p>&emsp;&emsp;Android应用程序进程的入口函数是<code>ActivityThread.main()</code>（即java程序的入口main函数）。即进程创建完成之后，Android应用程序框架层就会在这个进程中将ActivityThread类加载进来，然后执行它的main函数，这个main函数就是进程执行消息循环的地方了:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//ActivityThread .java</span></span><br><span class="line"><span class="comment">//主线程的入口方法</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">     ......</span><br><span class="line"></span><br><span class="line">     <span class="comment">//创建主线程的Looper和MessageQueue</span></span><br><span class="line">     Looper.prepareMainLooper();</span><br><span class="line"></span><br><span class="line">    <span class="comment">//创建一个ActivityThread实例，然后调用它的attach函数，</span></span><br><span class="line">    <span class="comment">//ActivityManagerService通过Binder进程间通信机制通知ActivityThread，启动应用首页</span></span><br><span class="line">     ActivityThread thread = <span class="keyword">new</span> ActivityThread();</span><br><span class="line">     thread.attach(<span class="keyword">false</span>);</span><br><span class="line"></span><br><span class="line">     <span class="keyword">if</span> (sMainThreadHandler == <span class="keyword">null</span>) &#123;</span><br><span class="line">         sMainThreadHandler = thread.getHandler();</span><br><span class="line">     &#125;</span><br><span class="line">    .......</span><br><span class="line">   <span class="comment">//开启主线程的消息循环。</span></span><br><span class="line">     Looper.loop();</span><br><span class="line"></span><br><span class="line">     <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Main thread loop unexpectedly exited"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个函数在进程中创建一个<code>ActivityThread</code>实例，然后调用它的attach函数，接着就进入消息循环了，直到最后进程退出。<br>下面简单说说Android的消息循环机制。  </p>
+<h3 id="Android应用程序的消息机制"><a href="#Android应用程序的消息机制" class="headerlink" title="Android应用程序的消息机制"></a>Android应用程序的消息机制</h3><ul>
+<li><code>MessageQueue</code><br>  MessageQueue叫做消息队列，但是实际上它内部的存储结构是单链表的方式。</li>
+<li><code>Looper</code><br>  Message只是一个消息的存储单元，它不能去处理消息，这个时候Looper就弥补了这个功能，Looper会以无限循环的形式从MessageQueue中查看是否有新消息，如果有新消息就会立即处理，否则就一直阻塞在那里。  </li>
+<li><code>Handler</code><br>  Handler把消息添加到了MessageQueue，Looper.loop会拿到该消息，按照handler的实现来处理响应的消息.  </li>
+</ul>
+<h3 id="Looper的工作机制"><a href="#Looper的工作机制" class="headerlink" title="Looper的工作机制"></a>Looper的工作机制</h3><p>上面所说的Andoird消息机制，主要体现在loop()方法里：<br><code>Looper.loop()</code>方法会无限循环调用<code>MessageQueue</code>的<code>next()</code>方法来获取新消息，而next是是一个阻塞操作，但没有信息时，next方法会一直阻塞在那里，这也导致loop方法一直阻塞在那里。如果MessageQueue的next方法返回了新消息，<code>Looper</code>就会处理这条消息。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">loop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        ......</span><br><span class="line">        <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">            Message msg = queue.next(); <span class="comment">// might block</span></span><br><span class="line">            ......</span><br><span class="line">            msg.target.dispatchMessage(msg);<span class="comment">//里面调用了handler.handleMessage()</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>&emsp;&emsp;Android的view绘制，事件分发，Activity启动，Activity的生命周期回调等等都是一个个的Message，系统会把这些Message插入到主线程中<code>唯一</code>的queue中，所有的消息都排队等待Looper将其取出，并在主线程执行。</p>
+<p>比如点击一个按钮最终都是产生一个消息放到<code>MessageQueue</code>，等待<code>Looper</code>取出消息处理。</p>
+<h2 id="Crash崩溃防护的思路"><a href="#Crash崩溃防护的思路" class="headerlink" title="Crash崩溃防护的思路"></a>Crash崩溃防护的思路</h2><p>&emsp;&emsp;综上所述，主进程运行的所有代码都跑在Looper.loop();。前面也提到，crash的发生是由于 主线程有未捕获的异常。那么我把Looper.loop();<code>用try-catch块包起来，应用程序就永不崩溃了！</code><br>所以在github上看到一个很精妙的思路<a href="https://link.jianshu.com/?t=https://github.com/android-notes/Cockroach" target="_blank" rel="noopener">android-notes/Cockroach</a>，主要代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> Handler(Looper.getMainLooper()).post(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">               <span class="comment">//主线程异常拦截</span></span><br><span class="line">                <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Looper.loop();<span class="comment">//主线程的异常会从这里抛出</span></span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">                                                </span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">       </span><br><span class="line">        sUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler();</span><br><span class="line">         <span class="comment">//所有线程异常拦截，由于主线程的异常都被我们catch住了，所以下面的代码拦截到的都是子线程的异常</span></span><br><span class="line">        Thread.setDefaultUncaughtExceptionHandler(<span class="keyword">new</span> Thread.UncaughtExceptionHandler() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">uncaughtException</span><span class="params">(Thread t, Throwable e)</span> </span>&#123;</span><br><span class="line">                </span><br><span class="line">            &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>  原理很简单：  </p>
+<ol>
+<li>通过<code>Handler</code>往<code>主线程</code>的<code>queue</code>中添加一个Runnable，当主线程执行到该Runnable时，会进入我们的while死循环，如果while内部是<code>空</code>的就会导致代码卡在这里，最终导致<code>ANR</code>。</li>
+<li>我们在while死循环中又调用了<code>Looper.loop()</code>，这就导致主线程又开始不断的读取queue中的Message并执行，也就是主线程并不会被<code>阻塞</code>。同时又可以保证以后主线程的所有异常都会从我们手动调用的Looper.loop()处抛出，一旦抛出就会被try-catch捕获，这样主线程就不会crash了。</li>
+<li><p>通过<code>while(true)</code>让主线程抛出异常后迫使主线程重新进入我们try-catch中的消息循环。 如果没有这个while的话那么主线程在第二次抛出异常时我们就又捕获不到了，这样APP就又crash了。  </p>
+<p>总而言之，Android应用程序的主线程是阻塞在main()中的<code>Looper.loop()</code>的<code>for(;;)</code>循环里，后来for循环取到我们的runnable之后，程序的流程就阻塞在了我们的runnable里面了。</p>
+</li>
+</ol>
+<p><code>强调一下</code>，上面所做的并不能帮你解决程序中的逻辑错误，它只是当你出现异常的时候让你的app进程不会崩，可以减少crash的次数，提高用户体验和留存率而已。</p>
+
       
     </div>
     
@@ -316,7 +368,7 @@
         <p><span>本文标题:</span><a href="/2018/03/01/2018-03-01-android-crash/">避免android Crash崩溃闪屏现象的解决方案</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
         <p><span>发布时间:</span>2018-03-01, 15:26:16</p>
-        <p><span>最后更新:</span>2018-03-01, 15:48:17</p>
+        <p><span>最后更新:</span>2018-03-01, 23:03:58</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2018/03/01/2018-03-01-android-crash/" title="避免android Crash崩溃闪屏现象的解决方案">http://yoursite.com/2018/03/01/2018-03-01-android-crash/</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2018/03/01/2018-03-01-android-crash/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -335,7 +387,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么会Crash？"><span class="toc-number">1.</span> <span class="toc-text">为什么会Crash？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Exception的分类以及捕获"><span class="toc-number">1.1.</span> <span class="toc-text">Exception的分类以及捕获</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#android应用启动基本流程"><span class="toc-number">2.</span> <span class="toc-text">android应用启动基本流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Android应用程序的消息机制"><span class="toc-number">2.1.</span> <span class="toc-text">Android应用程序的消息机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Looper的工作机制"><span class="toc-number">2.2.</span> <span class="toc-text">Looper的工作机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Crash崩溃防护的思路"><span class="toc-number">3.</span> <span class="toc-text">Crash崩溃防护的思路</span></a></li></ol>
         
     </div>
     <style>
@@ -373,27 +425,24 @@
 
 
     
-        <section id="comments">
-    <style> aside.comment-bar { margin: auto 30px; }</style>
-    <div id="disqus_thread"></div>
+      <div class="duoshuo" id="comments">
+    <div id="comment-box" ></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2018/03/01/2018-03-01-android-crash/" data-title="避免android Crash崩溃闪屏现象的解决方案" data-url="http://yoursite.com/2018/03/01/2018-03-01-android-crash/"></div>
     <script>
-        var disqus_config = function(){
-            this.page.url = 'http://yoursite.com/2018/03/01/2018-03-01-android-crash/';
-            this.page.identifier = '2018/03/01/2018-03-01-android-crash/';
-        };
+        var duoshuoQuery = {short_name:""};
         var loadComment = function(){
             var d = document, s = d.createElement('script');
-            s.src = '//.disqus.com/embed.js';
-            s.setAttribute('data-timestamp', +new Date());
+            s.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+            s.async = true; s.charset = 'UTF-8';
             (d.head || d.body).appendChild(s);
         }
+
+        
     </script>
     
     <script> loadComment(); </script>
 
-</section>
-
-
+</div>
     
 
 
@@ -476,6 +525,27 @@
 
 
 
+    <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
 <div class="scroll" id="scroll">
     <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
     <a href="#comments" onclick="load$hide();" title="查看评论"><i class="fa fa-comments-o"></i></a>
@@ -486,8 +556,8 @@
     
         var oOpenInNew = {
             
-            
-            
+             title: "a.article-title, .article-more-link a", 
+             post: ".article-entry a[href], .copyright a[href]", 
              tags: ".article-tag a", 
              categories: ".article-category a, a.tag-list-link", 
              articleNav: "#article-nav a, #post-nav-button a", 
