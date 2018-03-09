@@ -19,16 +19,14 @@
 <meta name="keywords" content="Android,https,加密">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HTTPS详解">
-<meta property="og:url" content="http://yoursite.com/2017/03/02/2017-03-02-android-https/index.html">
+<meta property="og:url" content="http://www.sherlockaza.com/2017/03/02/2017-03-02-android-https/index.html">
 <meta property="og:site_name" content="夏洛克丶Aza">
 <meta property="og:description" content="&amp;emsp;&amp;emsp;日常开发中几乎所有的程序猿（媛）们都知道HTTPS是用来客户端和服务器进行的一种安全连接，可以有效的保证内容信息安全，防止被抓包，那怎么保证信息安全的呢？很多人又会说加密，不得不承认说的没错，是利用加密方式进行的非明文传输，但是最后的问题来了，这怎么进行加密解密的呢？真正了解原理的人就少了很多，下面的内容就是为了丰(用)富(来)你(装)的(比)知识面准备的！">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37188666-47a6dd46-238b-11e8-9f8a-6c09ae22527c.png">
-<meta property="og:updated_time" content="2017-03-03T03:25:20.113Z">
+<meta property="og:updated_time" content="2018-03-09T03:30:01.871Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="HTTPS详解">
 <meta name="twitter:description" content="&amp;emsp;&amp;emsp;日常开发中几乎所有的程序猿（媛）们都知道HTTPS是用来客户端和服务器进行的一种安全连接，可以有效的保证内容信息安全，防止被抓包，那怎么保证信息安全的呢？很多人又会说加密，不得不承认说的没错，是利用加密方式进行的非明文传输，但是最后的问题来了，这怎么进行加密解密的呢？真正了解原理的人就少了很多，下面的内容就是为了丰(用)富(来)你(装)的(比)知识面准备的！">
-<meta name="twitter:image" content="https://user-images.githubusercontent.com/30682550/37188666-47a6dd46-238b-11e8-9f8a-6c09ae22527c.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -339,8 +337,7 @@
 <li>客户端使用相同的hash算法计算出服务器发来的证书的hash值hash-b，将这个计算的hash值与证书中签名做对比。</li>
 <li>对比结果一致，则证明服务器发来的证书合法，没有被冒充</li>
 </ol>
-<p>知道以上内容，我们就来详细的看一下解决身份认证和信息完整性验证的具体过程，也称为HTTPS的中SSL握手建立过程,如下图所示：</p>
-<p><img src="https://user-images.githubusercontent.com/30682550/37188666-47a6dd46-238b-11e8-9f8a-6c09ae22527c.png" alt=""></p>
+<p>知道以上内容，我们就来详细的看一下解决身份认证和信息完整性验证的具体过程，也称为HTTPS的中SSL握手建立过程,如下图所示：<br><img src="" alt=""></p>
 <ol>
 <li>比如我们用浏览器打开一个网页 <a href="https://www.baidu.com" target="_blank" rel="noopener">https://www.baidu.com</a> ，这时，浏览器就是客户端 A ，百度的服务器就是服务器 B 了。这时候客户端 A 会生成一个<code>随机数(1)</code>，把<code>随机数(1)</code> 、自己支持的 <code>SSL 版本号</code>以及<code>加密算法</code>等这些信息告诉服务器 B 。</li>
 <li>服务器 B 知道这些信息后，然后确认一下双方的加密算法，然后服务端也生成一个<code>随机数(2)</code> ，并将<code>随机数(2)</code>和 <code>CA颁发给自己的证书</code>一同返回给客户端 A 。</li>
@@ -371,10 +368,10 @@
         <p><span>本文标题:</span><a href="/2017/03/02/2017-03-02-android-https/">HTTPS详解</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
         <p><span>发布时间:</span>2017-03-02, 10:05:09</p>
-        <p><span>最后更新:</span>2017-03-03, 11:25:20</p>
+        <p><span>最后更新:</span>2018-03-09, 11:30:01</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2017/03/02/2017-03-02-android-https/" title="HTTPS详解">http://yoursite.com/2017/03/02/2017-03-02-android-https/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/2017/03/02/2017-03-02-android-https/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2017/03/02/2017-03-02-android-https/" title="HTTPS详解">http://www.sherlockaza.com/2017/03/02/2017-03-02-android-https/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2017/03/02/2017-03-02-android-https/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -447,7 +444,7 @@
     
       <div class="duoshuo" id="comments">
     <div id="comment-box" ></div>
-    <div class="ds-thread" id="ds-thread" data-thread-key="2017/03/02/2017-03-02-android-https/" data-title="HTTPS详解" data-url="http://yoursite.com/2017/03/02/2017-03-02-android-https/"></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2017/03/02/2017-03-02-android-https/" data-title="HTTPS详解" data-url="http://www.sherlockaza.com/2017/03/02/2017-03-02-android-https/"></div>
     <script>
         var duoshuoQuery = {short_name:""};
         var loadComment = function(){
@@ -498,7 +495,7 @@
         <div id="footer-info">
             <div class="footer-left">
                 <i class="fa fa-copyright"></i> 
-                2016-2017 夏洛克丶Aza
+                2016-2018 夏洛克丶Aza
             </div>
             <div class="footer-right">
                 <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
