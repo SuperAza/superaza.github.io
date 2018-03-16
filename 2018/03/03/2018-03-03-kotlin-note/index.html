@@ -23,10 +23,12 @@
 <meta property="og:site_name" content="夏洛克丶Aza">
 <meta property="og:description" content="&amp;emsp;&amp;emsp;自从Kotlin被Google声明作为Android的官方开发语言以来，Kotlin备受关注，学习的人群也越来越多，Android和Kotlin混合开发的项目也越来越多，各大互联网公司如Facebook、Square等包括国内的BAT，对自己的开源项目也增加了Kotlin版本，作为一名Android狗，没理由不学习下">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-04T16:15:13.000Z">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37216322-76a6da78-23f5-11e8-8c2a-461f185e8e94.jpg">
+<meta property="og:updated_time" content="2018-03-11T11:06:27.310Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kotlin学习笔记（一）">
 <meta name="twitter:description" content="&amp;emsp;&amp;emsp;自从Kotlin被Google声明作为Android的官方开发语言以来，Kotlin备受关注，学习的人群也越来越多，Android和Kotlin混合开发的项目也越来越多，各大互联网公司如Facebook、Square等包括国内的BAT，对自己的开源项目也增加了Kotlin版本，作为一名Android狗，没理由不学习下">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/30682550/37216322-76a6da78-23f5-11e8-8c2a-461f185e8e94.jpg">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -192,7 +194,7 @@
                 
                 <section class="switch-part switch-part2">
                     <div class="widget tagcloud" id="js-tagcloud">
-                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crash/">Crash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashMap/">HashMap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LruCache/">LruCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/加密/">加密</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/基础/">基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/缓存/">缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言/">语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/适配/">适配</a></li></ul>
+                        <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Crash/">Crash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HashMap/">HashMap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Java/">Java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/LruCache/">LruCache</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/https/">https</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/加密/">加密</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/基础/">基础</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/缓存/">缓存</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/设计模式/">设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语言/">语言</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/适配/">适配</a></li></ul>
                     </div>
                 </section>
                 
@@ -322,6 +324,13 @@
 <p>Kotlin在方法定义参数和返回值的时候和Java有些不同，返回值是定义在后边，用“：”分开，其他的if…else 逻辑和写法和类似，基本数据类型的比较和java也没什么区别，唯独String字符串类型不一样，以上例子输出的结果是</p>
 <figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x&lt;y</span><br><span class="line"><span class="literal">true</span></span><br></pre></td></tr></table></figure>
 <p>我们可以看到第二个函数返回的是<code>true</code>，在Java中 <code>s1 == s2</code>判断的是<code>内存地址</code>是否相等，而并不是值相等，在Kotlin语法中 字符串的<code>==</code> 和<code>equals</code>一样，判断的是值是否相等</p>
+<h3 id="空值的处理"><a href="#空值的处理" class="headerlink" title="空值的处理"></a>空值的处理</h3><p>对于空值的处理，Kotlin在语法定义阶段就做了处理，如下图所示：</p>
+<p><img src="https://user-images.githubusercontent.com/30682550/37216322-76a6da78-23f5-11e8-8c2a-461f185e8e94.jpg" width="30%" height="50%"><br>箭头表明的地方系统提示错误(Null can not be a value of a non-null type String)，无法编译通过,如何才能让方法可以接受空值的参数呢，如图中方法strTest2参数<code>str: String?</code>，在参数的定义后边加上一个问号？，其含义就是该参数可以传null，我们可以看下strTest2测 试运行结果  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">null</span>空值测试</span><br></pre></td></tr></table></figure>
+<h3 id="when表达式"><a href="#when表达式" class="headerlink" title="when表达式"></a>when表达式</h3><p>&emsp;&emsp;when表达式和java中的switch语句类似，但是他要比switch强大的多</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">fun <span class="title">main</span><span class="params">(args: Array&lt;String&gt;)</span> </span>&#123;</span><br><span class="line">    test1(<span class="number">1</span>)</span><br><span class="line">    println(test2(<span class="number">1</span>))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">fun <span class="title">test1</span><span class="params">(num :Int)</span></span>&#123;</span><br><span class="line">    when(num)&#123;</span><br><span class="line">        <span class="number">1</span> -&gt; println(<span class="string">"A"</span>)</span><br><span class="line">        <span class="number">2</span> -&gt; println(<span class="string">"B"</span>)</span><br><span class="line">        <span class="number">3</span> -&gt; println(<span class="string">"C"</span>)</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 简单写法</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function">fun <span class="title">test2</span><span class="params">(num : Int)</span> : String</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> when(num)&#123;</span><br><span class="line">        <span class="number">1</span> -&gt; <span class="string">"A"</span></span><br><span class="line">        <span class="number">2</span> -&gt; <span class="string">"B"</span></span><br><span class="line">        <span class="number">3</span> -&gt; <span class="string">"C"</span></span><br><span class="line">        <span class="keyword">else</span> -&gt;<span class="string">"D"</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上代码的运行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">A</span><br><span class="line">A</span><br></pre></td></tr></table></figure></p>
+<h3 id="Loop和Range"><a href="#Loop和Range" class="headerlink" title="Loop和Range"></a>Loop和Range</h3><p>首先认识下开区间和闭区间，这个和java类似，(a,b)这属于开区间,开区间不包括边缘值，[a,b]闭区间，闭区间包括边缘值，还有一个关键字until 代表的是左闭右开[a,b)</p>
 
       
     </div>
@@ -333,7 +342,7 @@
         <p><span>本文标题:</span><a href="/2018/03/03/2018-03-03-kotlin-note/">Kotlin学习笔记（一）</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
         <p><span>发布时间:</span>2018-03-03, 15:04:23</p>
-        <p><span>最后更新:</span>2018-03-05, 00:15:13</p>
+        <p><span>最后更新:</span>2018-03-11, 19:06:27</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/2018/03/03/2018-03-03-kotlin-note/" title="Kotlin学习笔记（一）">http://www.sherlockaza.com/2018/03/03/2018-03-03-kotlin-note/</a>
             <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2018/03/03/2018-03-03-kotlin-note/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -363,7 +372,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础语法"><span class="toc-number">2.</span> <span class="toc-text">基础语法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本数据类型的声明"><span class="toc-number">2.1.</span> <span class="toc-text">基本数据类型的声明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据的比较"><span class="toc-number">2.2.</span> <span class="toc-text">数据的比较</span></a></li></ol></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基础语法"><span class="toc-number">2.</span> <span class="toc-text">基础语法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本数据类型的声明"><span class="toc-number">2.1.</span> <span class="toc-text">基本数据类型的声明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据的比较"><span class="toc-number">2.2.</span> <span class="toc-text">数据的比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#空值的处理"><span class="toc-number">2.3.</span> <span class="toc-text">空值的处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#when表达式"><span class="toc-number">2.4.</span> <span class="toc-text">when表达式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Loop和Range"><span class="toc-number">2.5.</span> <span class="toc-text">Loop和Range</span></a></li></ol></li></ol>
         
     </div>
     <style>
@@ -438,7 +447,7 @@
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/03/2018-03-03-kotlin-note/">Kotlin学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/02/2018-03-02-android-8/">Android8.0适配问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/2018-03-01-android-crash/">避免android Crash崩溃闪屏现象的解决方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/2017-03-02-android-https/">HTTPS详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/05/2016-11-05-LruCache/">深入剖析LruCache</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/2016-11-03-java-linkedhashmap/">LinkedHashMap原理分析</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/03/2018-03-03-kotlin-note/">Kotlin学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/02/2018-03-02-android-8/">Android8.0适配问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/2018-03-01-android-crash/">避免android Crash崩溃闪屏现象的解决方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/2017-03-08-design-builder/">设计模式之Builder模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/2017-03-02-android-https/">HTTPS详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/05/2016-11-05-LruCache/">深入剖析LruCache</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/2016-11-03-java-linkedhashmap/">LinkedHashMap原理分析</a></li></ul>
 
 
 
@@ -452,7 +461,7 @@
         <div id="footer-info">
             <div class="footer-left">
                 <i class="fa fa-copyright"></i> 
-                2016-2017 夏洛克丶Aza
+                2016-2018 夏洛克丶Aza
             </div>
             <div class="footer-right">
                 <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减 Hexo 双栏博客主题  v3.5">Yelee</a> by MOxFIVE <i class="fa fa-heart animated infinite pulse"></i>
@@ -532,22 +541,7 @@ MathJax.Hub.Queue(function() {
 <script>
     // Open in New Window
     
-        var oOpenInNew = {
-            
-             title: "a.article-title, .article-more-link a", 
-             post: ".article-entry a[href], .copyright a[href]", 
-             tags: ".article-tag a", 
-             categories: ".article-category a, a.tag-list-link", 
-             articleNav: "#article-nav a, #post-nav-button a", 
-             archives: ".archive-article-title", 
-             miniArchives: "a.post-list-link", 
-             menu: ".header-menu a", 
-             friends: "#js-friends a", 
-             socail: ".social a" 
-        }
-        for (var x in oOpenInNew) {
-            $(oOpenInNew[x]).attr("target", "_blank");
-        }
+        $("a[target=_blank]").removeAttr("target");
     
 </script>
 
