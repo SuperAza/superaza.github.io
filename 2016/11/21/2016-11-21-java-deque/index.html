@@ -15,15 +15,23 @@
 
 
 
+<meta name="description" content="&amp;emsp;&amp;emsp;Deque是Queue的一个子接口，是Double Ended Queue的缩写，顾名思义Deque是一个支持双向检索和插入元素的双向队列，因此Deque既支持FIFO原则也支持LIFO原则的数据结构，Deque接口是一种比Stack和Queue更为丰富的抽象数据形式，因为它同时实现了以上两者">
 <meta name="keywords" content="Java,容器,队列,Queue">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java容器之双向队列Deque">
+<meta property="og:title" content="Java容器之双端队列Deque">
 <meta property="og:url" content="http://www.sherlockaza.com/2016/11/21/2016-11-21-java-deque/index.html">
 <meta property="og:site_name" content="夏洛克丶Aza">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;Deque是Queue的一个子接口，是Double Ended Queue的缩写，顾名思义Deque是一个支持双向检索和插入元素的双向队列，因此Deque既支持FIFO原则也支持LIFO原则的数据结构，Deque接口是一种比Stack和Queue更为丰富的抽象数据形式，因为它同时实现了以上两者">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2016-11-08T10:39:24.493Z">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37652347-2dc19abc-2c76-11e8-9862-ed94157c2736.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37652645-2246a28a-2c77-11e8-80b2-66ebf8aacf61.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37710517-dfb16982-2d48-11e8-8bbd-a2327821141e.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37758588-af74c784-2deb-11e8-8b77-04ba881690f9.jpg">
+<meta property="og:updated_time" content="2016-11-21T13:19:10.880Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java容器之双向队列Deque">
+<meta name="twitter:title" content="Java容器之双端队列Deque">
+<meta name="twitter:description" content="&amp;emsp;&amp;emsp;Deque是Queue的一个子接口，是Double Ended Queue的缩写，顾名思义Deque是一个支持双向检索和插入元素的双向队列，因此Deque既支持FIFO原则也支持LIFO原则的数据结构，Deque接口是一种比Stack和Queue更为丰富的抽象数据形式，因为它同时实现了以上两者">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/30682550/37652347-2dc19abc-2c76-11e8-9862-ed94157c2736.jpg">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -55,7 +63,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>Java容器之双向队列Deque | 夏洛克丶Aza</title>
+<title>Java容器之双端队列Deque | 夏洛克丶Aza</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -283,7 +291,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Java容器之双向队列Deque
+      Java容器之双端队列Deque
     </h1>
   
 
@@ -308,7 +316,21 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        
+        <p>&emsp;&emsp;<code>Deque</code>是<code>Queue</code>的一个子接口，是<code>Double Ended Queue</code>的缩写，顾名思义Deque是一个支持<code>双向检索</code>和<code>插入</code>元素的<code>双向队列</code>，因此Deque既支持<code>FIFO</code>原则也支持<code>LIFO</code>原则的数据结构，Deque接口是一种比Stack和Queue更为丰富的抽象数据形式，因为它同时实现了以上两者<br><a id="more"></a></p>
+<h2 id="主要方法"><a href="#主要方法" class="headerlink" title="主要方法"></a>主要方法</h2><p><img src="https://user-images.githubusercontent.com/30682550/37652347-2dc19abc-2c76-11e8-9862-ed94157c2736.jpg" width="70%" height="70%"></p>
+<p>如图此接口定义时在提供了双端队列两端访问元素的方法。提供插入、移除和检查元素的方法。因为此接口继承了队列接口Queue，所以其每种方法也存在两种形式：一种形式在操作失败时抛出异常，另一种形式返回一个特殊值（null 或 false，具体取决于操作）。  </p>
+<h3 id="FIFO行为（当队列Queue使用）"><a href="#FIFO行为（当队列Queue使用）" class="headerlink" title="FIFO行为（当队列Queue使用）"></a>FIFO行为（当队列Queue使用）</h3><p>将元素添加到双端队列的末尾，从双端队列的开头移除元素。从 Queue 接口继承的方法完全等效于 Deque 方法，如下表所示：<br><img src="https://user-images.githubusercontent.com/30682550/37652645-2246a28a-2c77-11e8-80b2-66ebf8aacf61.jpg" width="70%" height="70%"></p>
+<h3 id="LIFO行为-当栈Stack使用"><a href="#LIFO行为-当栈Stack使用" class="headerlink" title="LIFO行为(当栈Stack使用)"></a>LIFO行为(当栈Stack使用)</h3><p>在将双端队列用作堆栈时，元素被推入双端队列的开头并从双端队列开头弹出。堆栈方法完全等效于 Deque 方法,如下表所示:<br><img src="https://user-images.githubusercontent.com/30682550/37710517-dfb16982-2d48-11e8-8bbd-a2327821141e.jpg" width="70%" height="70%"></p>
+<p>方法说明如下:<br><img src="https://user-images.githubusercontent.com/30682550/37758588-af74c784-2deb-11e8-8b77-04ba881690f9.jpg" width="70%" height="70%"><br>可以看出Deque在Queue的方法上新添了对队列头尾元素的操作,add,remove,get形式的方法会在有界队列满员和空队列时抛出异常,<code>offer</code>,<code>poll</code>,<code>peek</code>形式的方法则会返回<code>false</code>或<code>null</code>.</p>
+<p>此外方法表中需要注意<code>push</code> = <code>addFirst</code>,<code>pop</code> = <code>removeFirst</code>,只是使用了不同的方法名体现队列表示栈结构时的特点.   </p>
+<h2 id="实现类"><a href="#实现类" class="headerlink" title="实现类"></a>实现类</h2><ol>
+<li><strong>LinkedList</strong> 大小可变的链表双端队列，允许元素为 null </li>
+<li><strong>ArrayDeque</strong>  大下可变的数组双端队列，不允许 null</li>
+<li><strong>LinkedBlockingDeque</strong> 如果队列为空时，获取操作将会阻塞，直到有元素添加</li>
+<li><strong>ConcurrentLinkedDeque</strong> 非阻塞线程安全列表  </li>
+</ol>
+<h2 id="工作密取"><a href="#工作密取" class="headerlink" title="工作密取"></a>工作密取</h2><p>&emsp;&emsp;在 <code>生产者-消费者</code> 模式中，所有消费者都从一个工作队列中取元素，一般使用<code>阻塞队列</code>实现；而在 <code>工作密取</code> 模式中，每个消费者有其单独的工作队列，如果它完成了自己<code>双端队列</code>中的全部工作，那么它就可以从其他消费者的双端队列<code>末尾</code>秘密地获取工作。<br>&emsp;&emsp;工作密取 模式 对比传统的 生产者-消费者 模式，更为灵活，因为<code>多个线程</code>不会因为在<code>同一个工作队列</code>中抢占内容发生竞争。在大多数时候，它们只是访问自己的<code>双端队列</code>。即使需要访问另一个队列时，也是从 队列的尾部获取工作，降低了队列上的竞争程度。</p>
+
       
     </div>
     
@@ -316,12 +338,12 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2016/11/21/2016-11-21-java-deque/">Java容器之双向队列Deque</a></p>
+        <p><span>本文标题:</span><a href="/2016/11/21/2016-11-21-java-deque/">Java容器之双端队列Deque</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
         <p><span>发布时间:</span>2016-11-21, 18:13:16</p>
-        <p><span>最后更新:</span>2016-11-08, 18:39:24</p>
+        <p><span>最后更新:</span>2016-11-21, 21:19:10</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2016/11/21/2016-11-21-java-deque/" title="Java容器之双向队列Deque">http://www.sherlockaza.com/2016/11/21/2016-11-21-java-deque/</a>
+            <span>原始链接:</span><a class="post-url" href="/2016/11/21/2016-11-21-java-deque/" title="Java容器之双端队列Deque">http://www.sherlockaza.com/2016/11/21/2016-11-21-java-deque/</a>
             <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2016/11/21/2016-11-21-java-deque/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -355,7 +377,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#主要方法"><span class="toc-number">1.</span> <span class="toc-text">主要方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#FIFO行为（当队列Queue使用）"><span class="toc-number">1.1.</span> <span class="toc-text">FIFO行为（当队列Queue使用）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LIFO行为-当栈Stack使用"><span class="toc-number">1.2.</span> <span class="toc-text">LIFO行为(当栈Stack使用)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现类"><span class="toc-number">2.</span> <span class="toc-text">实现类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#工作密取"><span class="toc-number">3.</span> <span class="toc-text">工作密取</span></a></li></ol>
         
     </div>
     <style>
@@ -395,7 +417,7 @@
     
       <div class="duoshuo" id="comments">
     <div id="comment-box" ></div>
-    <div class="ds-thread" id="ds-thread" data-thread-key="2016/11/21/2016-11-21-java-deque/" data-title="Java容器之双向队列Deque" data-url="http://www.sherlockaza.com/2016/11/21/2016-11-21-java-deque/"></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2016/11/21/2016-11-21-java-deque/" data-title="Java容器之双端队列Deque" data-url="http://www.sherlockaza.com/2016/11/21/2016-11-21-java-deque/"></div>
     <script>
         var duoshuoQuery = {short_name:""};
         var loadComment = function(){
@@ -432,7 +454,7 @@
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/03/2018-03-03-kotlin-note/">Kotlin学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/02/2018-03-02-android-8/">Android8.0适配问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/2018-03-01-android-crash/">避免android Crash崩溃闪屏现象的解决方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/11/2017-03-11-okhttp-source-1/">OkHttp源码阅读（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/2017-03-08-design-builder/">设计模式之Builder模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/2017-03-02-android-https/">HTTPS详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/21/2016-11-21-java-deque/">Java容器之双向队列Deque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/12/2016-11-10-java-stack/">Java容器之栈Stack</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/2016-11-08-java-queue/">Java容器之队列Qeque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/05/2016-11-05-LruCache/">深入剖析LruCache</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/2016-11-03-java-linkedhashmap/">LinkedHashMap原理分析</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2018/03/03/2018-03-03-kotlin-note/">Kotlin学习笔记（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/02/2018-03-02-android-8/">Android8.0适配问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2018/03/01/2018-03-01-android-crash/">避免android Crash崩溃闪屏现象的解决方案</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/11/2017-03-11-okhttp-source-1/">OkHttp源码阅读（一）</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/08/2017-03-08-design-builder/">设计模式之Builder模式</a></li><li class="post-list-item"><a class="post-list-link" href="/2017/03/02/2017-03-02-android-https/">HTTPS详解</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/21/2016-11-21-java-deque/">Java容器之双端队列Deque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/12/2016-11-10-java-stack/">Java容器之栈Stack</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/08/2016-11-08-java-queue/">Java容器之队列Qeque</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/05/2016-11-05-LruCache/">深入剖析LruCache</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/11/03/2016-11-03-java-linkedhashmap/">LinkedHashMap原理分析</a></li></ul>
 
 
 
