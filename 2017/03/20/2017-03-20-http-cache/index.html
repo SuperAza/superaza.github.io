@@ -15,25 +15,33 @@
 
 
 
-<meta name="description" content="&amp;emsp;&amp;emsp;队列是一种数据结构，遵循FIFO(先进先出)原则的一种数据结构，简单的讲先放到队列里的元素，先出队列，跟现实生活中的排队一样，队列的使用非常广泛和灵活，详细如下：">
-<meta name="keywords" content="Java,容器,队列,Queue">
+<meta name="description" content="&amp;emsp;&amp;emsp;写这篇博客的意义完全是为了后边继续写OkHttp源码阅读系列中的CacheInterceptor做铺垫，作为移动端开发人员来说，Http的缓存机制并不是很熟悉，在阅读OkHttp源码过程中发现CacheInterceptor拦截器中好多字段的定义和方法很难懂(看懵逼了)，所以通过Google和Baidu了解到，有必要先铺垫一下Http是怎么进行缓存，进而才能更好的理解OkH">
+<meta name="keywords" content="缓存,OkHttp">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java容器之队列Qeque">
-<meta property="og:url" content="http://www.sherlockaza.com/2016/11/08/2016-11-08-java-queue/index.html">
+<meta property="og:title" content="浅析Http中的缓存机制">
+<meta property="og:url" content="http://www.sherlockaza.com/2017/03/20/2017-03-20-http-cache/index.html">
 <meta property="og:site_name" content="夏洛克丶Aza">
-<meta property="og:description" content="&amp;emsp;&amp;emsp;队列是一种数据结构，遵循FIFO(先进先出)原则的一种数据结构，简单的讲先放到队列里的元素，先出队列，跟现实生活中的排队一样，队列的使用非常广泛和灵活，详细如下：">
+<meta property="og:description" content="&amp;emsp;&amp;emsp;写这篇博客的意义完全是为了后边继续写OkHttp源码阅读系列中的CacheInterceptor做铺垫，作为移动端开发人员来说，Http的缓存机制并不是很熟悉，在阅读OkHttp源码过程中发现CacheInterceptor拦截器中好多字段的定义和方法很难懂(看懵逼了)，所以通过Google和Baidu了解到，有必要先铺垫一下Http是怎么进行缓存，进而才能更好的理解OkH">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37632070-6462c55e-2c27-11e8-886a-3f3c72c52c55.jpg">
-<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37632907-477f3a18-2c2b-11e8-870b-d90710278c73.jpg">
-<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37633028-ac1c80e8-2c2b-11e8-9119-a6760330f3e1.jpg">
-<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37633316-cb3bfba6-2c2c-11e8-9d3c-41dea0e65731.jpg">
-<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37595213-ea3f6eae-2bb2-11e8-98c4-1d6d4daee108.jpg">
-<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/37634549-fd6b6666-2c31-11e8-85d4-69038faf0b1e.jpg">
-<meta property="og:updated_time" content="2016-11-12T13:44:27.438Z">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38082263-b1ad95de-3378-11e8-9050-e08d630a69dd.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38082757-3b0eaa2e-337a-11e8-90e0-af0e7e7c46a2.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38082813-6795067e-337a-11e8-9c60-6a0e0c0ba576.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38083139-5bd8362a-337b-11e8-8613-4fd075382342.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38083175-7606815a-337b-11e8-913f-fda7287978f6.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38084008-e4dcdd98-337d-11e8-80b6-0f46e14e1788.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38084560-f473645a-337f-11e8-838c-b208a6aa129c.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38085419-0919376a-3383-11e8-91eb-7c5a676d11c8.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38085470-423a1fbe-3383-11e8-894d-d79c497720b7.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38086189-fe0cd3ba-3385-11e8-9a91-cc3334f8b112.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38086357-9cb05866-3386-11e8-8a88-4d5b2c1f1e1d.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38086579-7f26a984-3387-11e8-8d13-e620a2559994.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38088058-16e387ce-338d-11e8-8d9a-6974719d88c8.jpg">
+<meta property="og:image" content="https://user-images.githubusercontent.com/30682550/38088180-7b31914e-338d-11e8-95c5-94944b986ff5.jpg">
+<meta property="og:updated_time" content="2017-03-20T12:14:34.714Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java容器之队列Qeque">
-<meta name="twitter:description" content="&amp;emsp;&amp;emsp;队列是一种数据结构，遵循FIFO(先进先出)原则的一种数据结构，简单的讲先放到队列里的元素，先出队列，跟现实生活中的排队一样，队列的使用非常广泛和灵活，详细如下：">
-<meta name="twitter:image" content="https://user-images.githubusercontent.com/30682550/37632070-6462c55e-2c27-11e8-886a-3f3c72c52c55.jpg">
+<meta name="twitter:title" content="浅析Http中的缓存机制">
+<meta name="twitter:description" content="&amp;emsp;&amp;emsp;写这篇博客的意义完全是为了后边继续写OkHttp源码阅读系列中的CacheInterceptor做铺垫，作为移动端开发人员来说，Http的缓存机制并不是很熟悉，在阅读OkHttp源码过程中发现CacheInterceptor拦截器中好多字段的定义和方法很难懂(看懵逼了)，所以通过Google和Baidu了解到，有必要先铺垫一下Http是怎么进行缓存，进而才能更好的理解OkH">
+<meta name="twitter:image" content="https://user-images.githubusercontent.com/30682550/38082263-b1ad95de-3378-11e8-9050-e08d630a69dd.jpg">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -65,7 +73,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>Java容器之队列Qeque | 夏洛克丶Aza</title>
+<title>浅析Http中的缓存机制 | 夏洛克丶Aza</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -274,11 +282,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="posts-2016-11-08-java-queue" class="article article-type-posts" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="posts-2017-03-20-http-cache" class="article article-type-posts" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/2016/11/08/2016-11-08-java-queue/" class="article-date">
-      <time datetime="2016-11-08T10:33:42.000Z" itemprop="datePublished">2016-11-08</time>
+      <a href="/2017/03/20/2017-03-20-http-cache/" class="article-date">
+      <time datetime="2017-03-20T08:50:03.000Z" itemprop="datePublished">2017-03-20</time>
 </a>
 
 
@@ -293,7 +301,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Java容器之队列Qeque
+      浅析Http中的缓存机制
     </h1>
   
 
@@ -302,13 +310,13 @@
       <div class="article-info article-info-post">
         
     <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Java/">Java</a><a class="article-category-link" href="/categories/Java/容器/">容器</a>
+    <a class="article-category-link" href="/categories/缓存/">缓存</a><a class="article-category-link" href="/categories/缓存/Android/">Android</a>
     </div>
 
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Java/">Java</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Queue/">Queue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/容器/">容器</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/队列/">队列</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OkHttp/">OkHttp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/缓存/">缓存</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -318,40 +326,65 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>&emsp;&emsp;队列是一种数据结构，遵循<code>FIFO</code>(先进先出)原则的一种数据结构，简单的讲先放到队列里的元素，先出队列，跟现实生活中的排队一样，队列的使用非常广泛和灵活，详细如下：<br><a id="more"></a></p>
-<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>&emsp;&emsp;队列是一种特殊的<code>线性表</code>，特殊之处在于它只允许在表的前端（<code>front</code>）进行删除操作，而在表的后端（<code>rear</code>）进行插入操作，和<code>栈</code>(<a href="http://www.sherlockaza.com/2016/11/12/2016-11-10-java-stack/">Java容器之栈Stack</a>)一样，队列是一种操作受限制的线性表。进行插入操作的端称为队尾，进行删除操作的端称为队头。队列中没有元素时，称为空队列。 </p>
-<h3 id="顺序队列-单队列"><a href="#顺序队列-单队列" class="headerlink" title="顺序队列(单队列)"></a>顺序队列(单队列)</h3><p>&emsp;&emsp;建立顺序队列结构必须为其静态分配或动态申请一片连续的存储空间，并设置两个指针进行管理。一个是队头指针<code>front</code>，它指向队头元素；另一个是队尾指针<code>rear</code>，它指向下一个入队元素的存储位置，如图所示<br><img src="https://user-images.githubusercontent.com/30682550/37632070-6462c55e-2c27-11e8-886a-3f3c72c52c55.jpg" width="50%" height="50%"><br>每次在队尾插入一个元素是，<code>rear</code>增<code>1</code>；每次在队头删除一个元素时，<code>front</code>增<code>1</code>。随着插入和删除操作的进行，队列元素的个数不断变化，队列所占的存储空间也在为队列结构所分配的连续空间中移动。当<code>front=rear</code>时，队列中没有任何元素，称为<code>空队列</code>。当rear增加到指向分配的连续空间之外时，队列无法再插入新元素，但这时往往还有大量可用空间未被占用，这些空间是已经出队的队列元素曾经占用过得存储单元。  </p>
-<blockquote>
-<p>顺序队列中的溢出现象：  </p>
-</blockquote>
+        <p>&emsp;&emsp;写这篇博客的意义完全是为了后边继续写OkHttp源码阅读系列中的<strong>CacheInterceptor</strong>做铺垫，作为移动端开发人员来说，Http的缓存机制并不是很熟悉，在阅读OkHttp源码过程中发现CacheInterceptor拦截器中好多字段的定义和方法很难懂(看懵逼了)，所以通过Google和Baidu了解到，有必要先铺垫一下Http是怎么进行缓存，进而才能更好的理解OkHttp的缓存拦截器。</p>
+<a id="more"></a>
+<h2 id="HTTP报文"><a href="#HTTP报文" class="headerlink" title="HTTP报文"></a>HTTP报文</h2><p>&emsp;&emsp;我们经常提到的报文信息究竟指的是什么呢，其实Http报文就是<strong>客户端和服务器之间通信时发送及相应的数据块</strong>。<br>客户端向服务器请求数据，发送请求<code>(Request)</code>报文；服务器向浏览器返回数据，返回响应<code>(Response)</code>报文。<br>一个报文信息主要包括两个内容:  </p>
 <ol>
-<li><code>&quot;下溢&quot;</code>现象：当队列为<code>空</code>时，做出队运算产生的溢出现象。“下溢”是正常现象，常用作程序控制转移的条件。</li>
-<li><code>&quot;真上溢&quot;</code>现象：当队列<code>满</code>时，做进栈运算产生空间溢出的现象。“真上溢”是一种出错状态，应设法避免。</li>
-<li><code>&quot;假上溢&quot;</code>现象：由于<code>入队</code>和<code>出队</code>操作中，<code>头尾指针</code>只<code>增加不减小</code>，致使被删元素的空间永远无法重新利用。当队列中实际的元素个数远远<code>小于</code>向量空间的规模时，也可能由于尾指针已超越向量空间的上界而不能做入队操作。该现象称为”假上溢”现象。</li>
+<li><strong>包含属性的首部(header)</strong>   附加信息（cookie，缓存信息等）<code>与缓存相关的规则信息，均包含在header中</code></li>
+<li><strong>包含数据的主体部分(body)</strong>  HTTP请求真正想要传输的部分</li>
 </ol>
-<h3 id="循环队列"><a href="#循环队列" class="headerlink" title="循环队列"></a>循环队列</h3><p>&emsp;&emsp;在实际使用队列时，为了使队列空间能重复使用，往往对队列的使用方法稍加改进：无论<code>插入</code>或<code>删除</code>，一旦<code>rear</code>指针<code>增1</code>或<code>front</code>指针<code>增1</code> 时<code>超出</code>了所分配的<code>队列空间</code>，就让它指向这片连续空间的<code>起始位置</code>。自己真从<code>MaxSize-1</code>增1变到<code>0</code>，可用取余运算<code>rear%MaxSize</code>和<code>front%MaxSize</code>来实现。这实际上是把队列空间想象成一个<code>环形空间</code>，环形空间中的存储单元循环使用，用这种方法管理的队列也就称为循环队列。除了一些简单应用之外，真正实用的队列是循环队列。还是上边的例子:<br><strong>rear = (rear - size) % size</strong><br>当 rear 大于 队列长度时，rear = ( 4 - 4) % 4 = 0 :如图：<br><img src="https://user-images.githubusercontent.com/30682550/37632907-477f3a18-2c2b-11e8-870b-d90710278c73.jpg" width="50%" height="50%"><br>rear指针回到了0 的位置，这样可以继续添加一个元素,如图:  </p>
-<p><img src="https://user-images.githubusercontent.com/30682550/37633028-ac1c80e8-2c2b-11e8-9119-a6760330f3e1.jpg" width="50%" height="50%">  </p>
-<p>那如何判断队列是否装满元素了呢，单使用 <code>front == rear</code> 无法判断究竟是空的还是满了。在循环队列中，当队列为<code>空</code>时，有<code>front=rear</code>，而当所有队列空间全<code>占满</code>时，也有<code>front=rear</code>。为了区别这两种情况，规定循环队列最多只能有MaxSize-1个队列元素，当循环队列中只剩下一个空存储单元时，队列就已经满了。因此，队列<code>判空</code>的条件时<code>front=rear</code>，而队列<code>判满</code>的条件时<code>front=（rear+1）%MaxSize</code>。 如图:<br><img src="https://user-images.githubusercontent.com/30682550/37633316-cb3bfba6-2c2c-11e8-9d3c-41dea0e65731.jpg" width="50%" height="50%"><br>如图所示front=2, 根据公式 front = (1+1)%4 = 2; 此队列已满.<br>因此，当 <code>rear &gt; font</code> 时，队列中元素个数 = <code>rear - font</code>;<br>当 <code>rear &lt; font</code> 时，队列中元素分为两部分： <code>size - font</code> 和 <code>rear</code> ,也就是 <code>rear + size - font</code>。以上述图片为例，队列中元素个数 = 1 + 4 - 2 = 3。</p>
-<h2 id="Java中的Queue"><a href="#Java中的Queue" class="headerlink" title="Java中的Queue"></a>Java中的Queue</h2><p>&emsp;&emsp;在Java中Queue是一个接口形式，它同List、Set属于同一级别，都是继承了<code>Collection</code>接口  </p>
-<p>下面是Queue接口的实现和继承<br><img src="https://user-images.githubusercontent.com/30682550/37595213-ea3f6eae-2bb2-11e8-98c4-1d6d4daee108.jpg" alt=""><br>Queue用来存放等待处理的元素的集合，这种场景一般用于缓存策略，并发访问等等，以下是Queue定义的一些除Collection额外的方法。  </p>
-<h3 id="Queue-方法介绍"><a href="#Queue-方法介绍" class="headerlink" title="Queue 方法介绍"></a>Queue 方法介绍</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Queue</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Collection</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E var1)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">offer</span><span class="params">(E var1)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">E <span class="title">remove</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">E <span class="title">poll</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">E <span class="title">element</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">E <span class="title">peek</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>添加、删除、和查询操作都提供两种不同的形式，其中一种形式是在操作失败的时候直接抛出异常，另一种形式则是返回一个特殊的值:<br><img src="https://user-images.githubusercontent.com/30682550/37634549-fd6b6666-2c31-11e8-85d4-69038faf0b1e.jpg" width="70%" height="70%">  </p>
+<h2 id="缓存规则"><a href="#缓存规则" class="headerlink" title="缓存规则"></a>缓存规则</h2><p>&emsp;&emsp;<strong>为了方便理解，后面会将客户端指定为浏览器，并且认为浏览器中存在一个缓存数据库，用于存储缓存信息。以上只是为了方便理解，实际不一定是数据库，我们只是统称存储数据的容器叫缓存数据库</strong>。<br>OK，有了上边的假设之后，在浏览器第一次访问数据时，此时缓存数据库中没有对应的缓存数据，需要请求服务器，服务器返回信息后，将数据存储到缓存数据库中。流程图如下:  </p>
+<p><img src="https://user-images.githubusercontent.com/30682550/38082263-b1ad95de-3378-11e8-9050-e08d630a69dd.jpg" width="50%" height="50%"><br>上述内容提到了缓存规则，在Http中缓存规则有很多种，根据是否需要重新向服务器发请求来分类的话，可以将其分为两大类:<strong><code>强制缓存</code></strong>和<strong><code>对比缓存</code></strong>。<br>在详细介绍这两种缓存规则之前，我们可以根据两组时序图来大致了解下两种缓存规则:</p>
 <blockquote>
-<p>add和offer在尾部添加方法  </p>
+<p>已存在缓存数据时，仅基于<strong>强制缓存</strong>，请求数据的流程如下</p>
 </blockquote>
-<p>他们的共同之处是建议实现类禁止添加 <code>null</code> 元素，否则会报空指针 <code>NullPointerException</code>；<br>不同之处在于 add() 方法在添加失败（比如队列已满）时会报 一些运行时错误；而 offer() 方法即使在添加失败时也不会奔溃，只会返回 false。<br>Queue 是个接口，它提供的 add, offer 方法初衷是希望子类能够禁止添加元素为 <code>null</code>，这样可以避免在查询时返回 null 究竟是正确还是错误。<br>事实上大多数 Queue 的实现类的确响应了 Queue 接口的规定，比如 <code>ArrayBlockingQueue</code>，<code>PriorityBlockingQueue</code> 等等。<br>但还是有一些实现类没有这样要求，比如 <code>LinkedList</code>。  </p>
+<p><img src="https://user-images.githubusercontent.com/30682550/38082757-3b0eaa2e-337a-11e8-90e0-af0e7e7c46a2.jpg" width="45%" height="45%">&emsp;&emsp;&emsp;&emsp;<img src="https://user-images.githubusercontent.com/30682550/38082813-6795067e-337a-11e8-9c60-6a0e0c0ba576.jpg" width="45%" height="45%"></p>
 <blockquote>
-<p>remove(), poll() 删除并返回头部方法  </p>
+<p>已存在缓存数据时，仅基于<strong>对比缓存</strong>，请求数据的流程如下  </p>
 </blockquote>
-<p>当队列为空时 <code>remove()</code> 方法会报 <code>NoSuchElementException</code> 异常; 而 <code>poll()</code> 不会奔溃，只会返回 <code>null</code>。</p>
-<blockquote>
-<p>element(), peek() 获取但不删除方法  </p>
-</blockquote>
-<p>当队列为空时 <code>element()</code> 抛出<code>异常</code>；<code>peek()</code> 不会奔溃，只会返回 <code>null</code>。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
-<li>虽然 <code>LinkedList</code> 没有禁止添加 <code>null</code>，但是一般情况下 <code>Queue</code> 的实现类都<code>不允许</code>添加 <code>null</code> 元素，为啥呢？因为 <code>poll()</code>, <code>peek()</code> 方法在异常的时候会返回 <code>null</code>，你添加了 null　以后，当获取时不好分辨究竟是否正确返回。</li>
-<li>Queue 一般都是 <code>FIFO</code> 的，但是也有例外，比如优先队列 <code>priority queue</code>（它的顺序是根据自然排序或者自定义 comparator 的）；再比如 LIFO 的队列（跟栈一样，后来进去的先出去）。<br>不论进入、出去的先后顺序是怎样的，使用 remove()，poll() 方法操作的都是 <code>头部</code> 的元素；而插入的位置则不一定是在队尾了，不同的 queue 会有不同的插入逻辑。</li>
+<p><img src="https://user-images.githubusercontent.com/30682550/38083139-5bd8362a-337b-11e8-8613-4fd075382342.jpg" width="45%" height="45%">&emsp;&emsp;&emsp;&emsp;<img src="https://user-images.githubusercontent.com/30682550/38083175-7606815a-337b-11e8-913f-fda7287978f6.jpg" width="45%" height="45%"></p>
+<p>我们可以看到两类缓存规则的不同，<strong>强制缓存</strong>如果生效，不需要再和服务器发生交互，而对比缓存不管是否生效，都需要与服务端发生交互。有人可能会问既然必须要请求服务器，还要缓存干嘛啊，这个问题先卖个关子，后边会说到。<br>两类缓存规则可以同时存在，<strong>强制缓存</strong><code>优先级高于</code><strong>对比缓存</strong>，也就是说，当执行强制缓存的规则时，<strong>如果缓存生效，直接使用缓存，不再执行对比缓存规则</strong>。  </p>
+<h2 id="强制缓存"><a href="#强制缓存" class="headerlink" title="强制缓存"></a>强制缓存</h2><p>&emsp;&emsp;为了方便理解和更直观的体现，后面所有的客户端都以浏览器为例子。<br>从上文我们得知，强制缓存，在缓存数据未失效的情况下，可以直接使用缓存数据，那么<code>浏览器是如何判断缓存数据是否失效呢？</code><br>我们知道，在没有缓存数据的时候，浏览器向服务器请求数据时，服务器会将数据和缓存规则一并返回，<strong>缓存规则信息包含在响应header中</strong>。</p>
+<p>对于强制缓存来说，响应header中会有两个字段来标明失效规则<strong>（Expires/Cache-Control）</strong><br>使用chrome的开发者工具，可以很明显的看到对于强制缓存生效时，网络请求的情况</p>
+<p><img src="https://user-images.githubusercontent.com/30682550/38084008-e4dcdd98-337d-11e8-80b6-0f46e14e1788.jpg" width="50%" height="50%"></p>
+<h3 id="Expires"><a href="#Expires" class="headerlink" title="Expires"></a>Expires</h3><p>&emsp;&emsp;<strong>Expires</strong>的值为服务端返回的到期时间，即下一次请求时，请求时间小于服务端返回的到期时间，直接使用缓存数据。<br>不过Expires 是HTTP 1.0的东西，现在默认浏览器均默认使用HTTP 1.1，所以它的作用基本忽略。<br>另一个问题是，到期时间是由服务端生成的，但是客户端时间可能跟服务端时间有误差，这就会导致缓存命中的误差。<br>所以HTTP 1.1 的版本，使用<strong>Cache-Control</strong>替代。  </p>
+<h3 id="Cache-Control"><a href="#Cache-Control" class="headerlink" title="Cache-Control"></a>Cache-Control</h3><p><strong>Cache-Control</strong> 是最重要的规则。常见的取值有private、public、no-cache、max-age，no-store，默认为<code>private</code>。  </p>
+<ol>
+<li><strong>private</strong>  客户端可以缓存</li>
+<li><strong>public</strong>  客户端和代理服务器都可缓存（Android端可以认为public和private是一样的）</li>
+<li><strong>max-age</strong>  缓存内容将在xxx多少秒后失效</li>
+<li><strong>no-cache</strong>  需要使用<strong>对比缓存</strong>来验证缓存数据（后面介绍）</li>
+<li><strong>no-store</strong>  所有内容都不会缓存，强制缓存，对比缓存都不会触发。</li>
 </ol>
+<p>通过chrome的开发者工具，从上边举得例子中随便找一个缓存:<br><img src="https://user-images.githubusercontent.com/30682550/38084560-f473645a-337f-11e8-838c-b208a6aa129c.jpg" width="40%" height="40%"><br>该数据缓存将在600秒后失效。  </p>
+<h2 id="对比缓存"><a href="#对比缓存" class="headerlink" title="对比缓存"></a>对比缓存</h2><p>&emsp;&emsp;<strong>对比缓存</strong>，顾名思义，需要进行比较判断是否可以使用缓存。<br>浏览器第一次请求数据时，服务器会将<code>缓存标识</code>与<code>数据</code>一起返回给客户端，客户端将二者备份至缓存数据库中。<br>再次请求数据时，客户端将备份的<code>缓存标识</code>发送给服务器，服务器根据缓存标识进行判断，判断成功后，返回<strong><code>304</code></strong>状态码，通知客户端比较成功，可以使用缓存数据。<br>第一次请求数据:<br><img src="https://user-images.githubusercontent.com/30682550/38085419-0919376a-3383-11e8-91eb-7c5a676d11c8.jpg" width="70%" height="70%"></p>
+<p>第二次请求数据:<br><img src="https://user-images.githubusercontent.com/30682550/38085470-423a1fbe-3383-11e8-894d-d79c497720b7.jpg" width="70%" height="70%"></p>
+<p>&emsp;&emsp;通过两图的对比，我们可以很清楚的发现，在<strong>对比缓存</strong>生效时，状态码为<strong>304</strong>，并且<code>报文大小</code>和<code>请求时间</code>大大减少。<br><strong>原因是服务端在进行标识比较后，<code>只返回header部分</code>，通过状态码通知客户端使用缓存，不再需要将报文主体部分返回给客户端。</strong></p>
+<p>对于对比缓存来说，缓存标识的传递是我们着重需要理解的，它在请求header和响应header间进行传递，<br>一共分为两种标识传递，接下来，我们分开介绍。</p>
+<h3 id="Last-Modified-If-Modified-Since"><a href="#Last-Modified-If-Modified-Since" class="headerlink" title="Last-Modified / If-Modified-Since"></a>Last-Modified / If-Modified-Since</h3><blockquote>
+<p>Last-Modified</p>
+</blockquote>
+<p>服务器在响应请求时，告诉浏览器资源的最后修改时间。  </p>
+<p><img src="https://user-images.githubusercontent.com/30682550/38086189-fe0cd3ba-3385-11e8-9a91-cc3334f8b112.jpg" width="40%" height="40%"><br>第一次请求数据时，服务器返回数据最后的修改时间</p>
+<blockquote>
+<p>If-Modified-Since  </p>
+</blockquote>
+<p>&emsp;&emsp;再次请求服务器时，通过<strong>If-Modified-Since</strong>字段通知服务器上次请求时，服务器返回的资源最后修改时间。<br>服务器收到请求后发现有头If-Modified-Since 则与被请求资源的最后修改时间进行比对。<br>若资源的最后修改时间<code>大于</code>If-Modified-Since，说明资源又被改动过，则响应整片资源内容，返回状态码<strong>200</strong>；<br>若资源的最后修改时间<code>小于或等于</code>If-Modified-Since，说明资源无新修改，则响应HTTP <strong>304</strong>，告知浏览器继续使用所保存的cache。</p>
+<p><img src="https://user-images.githubusercontent.com/30682550/38086357-9cb05866-3386-11e8-8a88-4d5b2c1f1e1d.jpg" width="40%" height="40%"></p>
+<h3 id="Etag-If-None-Match"><a href="#Etag-If-None-Match" class="headerlink" title="Etag  /  If-None-Match"></a>Etag  /  If-None-Match</h3><p>&emsp;&emsp; 它的优先级高于Last-Modified  /  If-Modified-Since  </p>
+<blockquote>
+<p>Etag</p>
+</blockquote>
+<p>服务器响应请求时，告诉浏览器当前资源在服务器的<strong>唯一标识</strong>（生成规则由服务器决定）。</p>
+<p><img src="https://user-images.githubusercontent.com/30682550/38086579-7f26a984-3387-11e8-8d13-e620a2559994.jpg" width="40%" height="40%"></p>
+<p>第一次请求时，服务器返回数据资源的唯一标识.</p>
+<blockquote>
+<p>If-None-Match  </p>
+</blockquote>
+<p>再次请求服务器时，通过<strong>If-None-Match</strong>字段通知服务器客户段缓存数据的唯一标识。<br>服务器收到请求后发现有头If-None-Match 则与被请求资源的唯一标识进行比对，<br>不同，说明资源又被改动过，则响应整片资源内容，返回状态码<code>200</code>；<br>相同，说明资源无新修改，则响应HTTP <code>304</code>，告知浏览器继续使用所保存的cache。<br>这里我不就截图了，因为我访问的链接时https的，所以chrome开发者工具看不到请求头，这里忽略一下，其实就是一个字段而已。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>&emsp;&emsp;<strong>对于强制缓存，服务器通知浏览器一个缓存时间，在缓存时间内，下次请求，直接用缓存，不在时间内，执行比较缓存策略。</strong><br>&emsp;&emsp;<strong>对于比较缓存，将缓存信息中的Etag和Last-Modified通过请求发送给服务器，由服务器校验，返回304状态码时，浏览器直接使用缓存。</strong></p>
+<p>最后两张流程图做下总结:<br><img src="https://user-images.githubusercontent.com/30682550/38088058-16e387ce-338d-11e8-8d9a-6974719d88c8.jpg" width="50%" height="50%"><br><img src="https://user-images.githubusercontent.com/30682550/38088180-7b31914e-338d-11e8-95c5-94944b986ff5.jpg" width="70%" height="70%"></p>
+<p>了解了HTTP缓存机制后，下面我们就可以分析OkHttp的缓存拦截器<code>CacheInterceptor</code>了</p>
 
       
     </div>
@@ -360,13 +393,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/2016/11/08/2016-11-08-java-queue/">Java容器之队列Qeque</a></p>
+        <p><span>本文标题:</span><a href="/2017/03/20/2017-03-20-http-cache/">浅析Http中的缓存机制</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">夏洛克丶Aza</a></p>
-        <p><span>发布时间:</span>2016-11-08, 18:33:42</p>
-        <p><span>最后更新:</span>2016-11-12, 21:44:27</p>
+        <p><span>发布时间:</span>2017-03-20, 16:50:03</p>
+        <p><span>最后更新:</span>2017-03-20, 20:14:34</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/2016/11/08/2016-11-08-java-queue/" title="Java容器之队列Qeque">http://www.sherlockaza.com/2016/11/08/2016-11-08-java-queue/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2016/11/08/2016-11-08-java-queue/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/2017/03/20/2017-03-20-http-cache/" title="浅析Http中的缓存机制">http://www.sherlockaza.com/2017/03/20/2017-03-20-http-cache/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://www.sherlockaza.com/2017/03/20/2017-03-20-http-cache/　　作者: 夏洛克丶Aza" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -379,15 +412,15 @@
     <nav id="article-nav">
         
             <div id="article-nav-newer" class="article-nav-title">
-                <a href="/2016/11/12/2016-11-10-java-stack/">
-                    Java容器之栈Stack
+                <a href="/2018/03/01/2018-03-01-android-crash/">
+                    避免android Crash崩溃闪屏现象的解决方案
                 </a>
             </div>
         
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="/2016/11/05/2016-11-05-LruCache/">
-                    深入剖析LruCache
+                <a href="/2017/03/18/2017-03-18-android-okhttp-interceptor-03/">
+                    OkHttp源码阅读(五) —— 拦截器之BridgeInterceptor
                 </a>
             </div>
         
@@ -399,7 +432,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#顺序队列-单队列"><span class="toc-number">1.1.</span> <span class="toc-text">顺序队列(单队列)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#循环队列"><span class="toc-number">1.2.</span> <span class="toc-text">循环队列</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Java中的Queue"><span class="toc-number">2.</span> <span class="toc-text">Java中的Queue</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Queue-方法介绍"><span class="toc-number">2.1.</span> <span class="toc-text">Queue 方法介绍</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP报文"><span class="toc-number">1.</span> <span class="toc-text">HTTP报文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#缓存规则"><span class="toc-number">2.</span> <span class="toc-text">缓存规则</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#强制缓存"><span class="toc-number">3.</span> <span class="toc-text">强制缓存</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Expires"><span class="toc-number">3.1.</span> <span class="toc-text">Expires</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Cache-Control"><span class="toc-number">3.2.</span> <span class="toc-text">Cache-Control</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#对比缓存"><span class="toc-number">4.</span> <span class="toc-text">对比缓存</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Last-Modified-If-Modified-Since"><span class="toc-number">4.1.</span> <span class="toc-text">Last-Modified / If-Modified-Since</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Etag-If-None-Match"><span class="toc-number">4.2.</span> <span class="toc-text">Etag  /  If-None-Match</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
         
     </div>
     <style>
@@ -439,7 +472,7 @@
     
       <div class="duoshuo" id="comments">
     <div id="comment-box" ></div>
-    <div class="ds-thread" id="ds-thread" data-thread-key="2016/11/08/2016-11-08-java-queue/" data-title="Java容器之队列Qeque" data-url="http://www.sherlockaza.com/2016/11/08/2016-11-08-java-queue/"></div>
+    <div class="ds-thread" id="ds-thread" data-thread-key="2017/03/20/2017-03-20-http-cache/" data-title="浅析Http中的缓存机制" data-url="http://www.sherlockaza.com/2017/03/20/2017-03-20-http-cache/"></div>
     <script>
         var duoshuoQuery = {short_name:""};
         var loadComment = function(){
@@ -462,7 +495,7 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/2016/11/12/2016-11-10-java-stack/" title="上一篇: Java容器之栈Stack">
+            <a href="/2018/03/01/2018-03-01-android-crash/" title="上一篇: 避免android Crash崩溃闪屏现象的解决方案">
                 <i class="fa fa-angle-left"></i>
             </a>
         
@@ -470,7 +503,7 @@
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="/2016/11/05/2016-11-05-LruCache/" title="下一篇: 深入剖析LruCache">
+            <a href="/2017/03/18/2017-03-18-android-okhttp-interceptor-03/" title="下一篇: OkHttp源码阅读(五) —— 拦截器之BridgeInterceptor">
                 <i class="fa fa-angle-right"></i>
             </a>
         
